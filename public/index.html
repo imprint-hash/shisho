@@ -108,6 +108,31 @@ function market(m, at) {
     <span>Altseason <b>${esc(m.altseason_phase ?? "no data")}</b></span><span>Funding <b>${esc(m.funding_crowding ?? "no data")}</b></span>`;
 }
 
+// ── Wallet and payments ──
+// RYO-CHAN lives on Solana, so payments are signed with a Solana wallet (Phantom).
+// RYO-CHAN can't move until it lists on RYO's DEX, so the wallet signs a payment
+// promise and the ledger marks it "settles at RYO-CHAN launch".
+let WALLET = null;
+async function connectWallet() {
+  const p = window.phantom?.solana || window.solana;
+  if (!p?.isPhantom) throw new Error("No Solana wallet found. Install Phantom, or pay with just your handle.");
+  const r = await p.connect(); WALLET = r.publicKey.toString(); return WALLET;
+}
+async function signIntent(message) {
+  if (!WALLET) return { wallet: null, signature: null, message };
+  const p = window.phantom?.solana || window.solana;
+  const { signature } = await p.signMessage(new TextEncoder().encode(message), "utf8");
+  return { wallet: WALLET, signature: btoa(String.fromCharCode(...signature)), message };
+}
+const short = w => w ? w.slice(0, 4) + "…" + w.slice(-4) : "";
+async function payment(body) {
+  if (HOSTED) {   // the hosted site can't write files: keep it in this browser
+    try { const all = JSON.parse(localStorage.getItem("shisho-payments") || "[]"); all.push({ ...body, at: new Date().toISOString(), status: "promised: settles at RYO-CHAN launch", browser_only: true }); localStorage.setItem("shisho-payments", JSON.stringify(all)); } catch {}
+    return { ...body, browser_only: true };
+  }
+  return api("/api/pay", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+}
+
 // ── Discover ──
 let sortBy = "latest";
 async function discover() {
@@ -181,9 +206,12 @@ async function page(id) {
         <div class="stat inner"><div class="k">Follow fee · ${big(s.fee.fee)} RYO-CHAN a month</div>
           <div class="split"><i style="flex:70;background:var(--green)"></i><i style="flex:24;background:var(--violet)"></i><i style="flex:6;background:var(--orange)"></i></div>
           <div class="legend"><span><i style="background:var(--green)"></i>Shishō ${big(s.fee.shisho)}</span><span><i style="background:var(--violet)"></i>RYO ${big(s.fee.platform_kept)}</span><span><i style="background:var(--orange)"></i>Buyback &amp; burn ${big(s.fee.buyback_and_burn)}</span></div></div>
+        <div class="stat inner"><div class="k">Earned by ${esc(s.creator.handle)}</div><div class="v">${big(s.earnings.fees + s.earnings.tips)} <span style="font-size:13px;color:var(--muted);font-weight:500">RYO-CHAN</span></div>
+          <div class="opts"><span>fees ${big(s.earnings.fees)}</span><span>tips ${big(s.earnings.tips)} (${s.earnings.tip_count})</span><span>${s.earnings.paid_followers} paying</span><span>burned ${big(s.earnings.burned)}</span></div></div>
+        <button class="pill" id="wallet" style="width:100%;margin-top:12px">Connect Solana wallet</button>
         <input class="field" id="handle" placeholder="Your handle, e.g. hanako_88" maxlength="20" aria-label="Your handle">
-        <button class="go" id="follow">Follow in practice</button>
-        <p class="note" id="fnote">Following copies this shishō's practice trades from now on. ${s.followers.length} following.</p>
+        <button class="go" id="follow">Pay ${big(s.fee.fee)} RYO-CHAN &amp; follow</button>
+        <p class="note" id="fnote">Your wallet signs the payment; it settles when RYO-CHAN launches on RYO's DEX (17 Nov). Following copies this shishō's practice trades from now on. ${s.followers.length} following.</p>
       </aside>
       <section class="card c-8">
         <div class="head"><h3>Practice record</h3><div class="r"><span class="pill on">Equity, practice USD</span></div></div>
@@ -203,7 +231,12 @@ async function page(id) {
       </section>
       <section class="card c-6">
         <div class="head"><h3>Closed trades</h3></div>
-        ${r.closed_trades.length ? r.closed_trades.slice().reverse().map(c => `<div class="inner pos"><div class="l1"><span>${esc(c.symbol)} · ${esc(c.exit_reason.replace("_", " "))}</span><span class="mono ${cls(c.pnl_pct)}">${pct(c.pnl_pct)}</span></div><div class="ends"><span>${esc(when(c.opened_at))}</span><span>${esc(when(c.closed_at))}</span></div></div>`).join("") : `<div class="empty">No closed trades yet: every position is still inside its stop and target.</div>`}
+        ${r.closed_trades.length ? r.closed_trades.slice().reverse().map(c => `<div class="inner pos"><div class="l1"><span>${esc(c.symbol)} · ${esc(c.exit_reason.replace("_", " "))}</span><span class="mono ${cls(c.pnl_pct)}">${pct(c.pnl_pct)}</span></div><div class="ends"><span>${esc(when(c.opened_at))}</span><span>${esc(when(c.closed_at))}</span></div>
+          ${c.pnl_pct > 0 ? `<div class="opts" style="margin-top:10px"><span style="background:none;padding-left:0">Good trade? Tip ${esc(s.creator.handle)}</span>${[1e6, 5e6, 1e7].map(a => `<button class="pill" data-tip="${a}" data-trade="${esc(c.symbol)} ${esc(pct(c.pnl_pct))} on ${esc(when(c.closed_at))}">${big(a)}</button>`).join("")}</div><p class="note tipnote"></p>` : ""}</div>`).join("") : `<div class="empty">No closed trades yet: every position is still inside its stop and target.</div>`}
+      </section>
+      <section class="card c-12">
+        <div class="head"><h3>Payments</h3><div class="r"><span class="pill">RYO-CHAN · settles at launch</span></div></div>
+        ${s.ledger.length ? `<div class="inner"><table class="log"><tr><th>When</th><th>Type</th><th>From</th><th>Amount</th><th>To ${esc(s.creator.handle)}</th><th>Burned</th><th>Signed</th></tr>${s.ledger.map(p => `<tr><td>${esc(when(p.at))}</td><td><span class="kind ${p.type === "tip" ? "exit" : "enter"}">${esc(p.type)}</span></td><td>${esc(p.payer)}${p.wallet ? " · " + esc(short(p.wallet)) : ""}</td><td class="mono">${big(p.amount)}</td><td class="mono">${p.split?.shisho != null ? big(p.split.shisho) : p.type === "stake" ? "locked" : "—"}</td><td class="mono">${p.split?.buyback_and_burn != null ? big(p.split.buyback_and_burn) : "—"}</td><td>${p.signed ? '<span class="badge ok">wallet</span>' : '<span class="badge info">handle</span>'}</td></tr>`).join("")}</table></div>` : `<div class="empty">No payments yet. Follow fees and tips appear here.</div>`}
       </section>
       <section class="card c-12">
         <div class="head"><h3>Decision log</h3><div class="r"><span class="pill">Every hour, on RYO data</span></div></div>
@@ -211,16 +244,29 @@ async function page(id) {
           ${s.decisions.slice(0, 24).map(d => `<tr><td>${esc(when(d.at))}</td><td><span class="kind ${d.kind}">${esc(d.kind.replace("_", " "))}</span></td><td>${esc(d.symbol || "—")}</td><td>${esc(d.note?.text || d.reason || "")}</td><td>${d.replay?.replayable ? (d.replay.identical ? '<span class="badge ok">identical</span>' : '<span class="badge bad">differs</span>') : ""}</td></tr>`).join("")}</table></div>
       </section>
     </div>`;
+  $("#wallet").onclick = async () => { try { const w = await connectWallet(); $("#wallet").textContent = "Wallet " + short(w); } catch (e) { $("#fnote").textContent = e.message; } };
   $("#follow").onclick = async () => {
     const b = $("#follow"); b.disabled = true;
     const h = $("#handle").value.trim().toLowerCase();
     try {
       if (!/^[a-z0-9_]{3,20}$/.test(h)) throw new Error("A handle is 3-20 letters, digits or underscores.");
-      if (HOSTED) { try { const f = JSON.parse(localStorage.getItem("shisho-follows") || "[]"); f.push({ handle: h, strategy: s.id, at: new Date().toISOString() }); localStorage.setItem("shisho-follows", JSON.stringify(f)); } catch {} }
-      else await api("/api/follow", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ handle: h, strategy: s.id }) });
-      $("#fnote").textContent = `You're following ${s.name} in practice${HOSTED ? " (saved in this browser)" : ""}. Its trades from now on count toward your record.`; b.textContent = "Following";
+      const intent = await signIntent(`Shishō: I, ${h}, pay ${s.fee.fee.toLocaleString()} RYO-CHAN to follow ${s.name} for one month. Settles at RYO-CHAN launch. ${new Date().toISOString()}`);
+      await payment({ type: "follow", strategy: s.id, payer: h, amount: s.fee.fee, ...intent });
+      $("#fnote").textContent = `Following ${s.name}. ${intent.signature ? "Signed by " + short(intent.wallet) + ". " : ""}${HOSTED ? "Saved in this browser. " : ""}${big(s.fee.shisho)} to ${s.creator.handle}, ${big(s.fee.platform_kept)} to RYO, ${big(s.fee.buyback_and_burn)} burned, when RYO-CHAN launches.`;
+      b.textContent = "Following";
     } catch (e) { $("#fnote").textContent = e.message; b.disabled = false; }
   };
+  document.querySelectorAll("[data-tip]").forEach(btn => btn.onclick = async () => {
+    const amount = Number(btn.dataset.tip), trade = btn.dataset.trade, out = btn.closest(".pos").querySelector(".tipnote");
+    const h = ($("#handle").value || "").trim().toLowerCase();
+    try {
+      if (!/^[a-z0-9_]{3,20}$/.test(h)) throw new Error("Type your handle in the follow box first.");
+      const intent = await signIntent(`Shishō: I, ${h}, tip ${s.creator.handle} ${amount.toLocaleString()} RYO-CHAN for ${trade}. Settles at RYO-CHAN launch. ${new Date().toISOString()}`);
+      await payment({ type: "tip", strategy: s.id, payer: h, amount, trade, ...intent });
+      out.textContent = `Tipped ${big(amount)} RYO-CHAN: ${big(amount * s.tip_split.shisho / s.tip_split.amount)} to ${s.creator.handle}. Thank you!`;
+      btn.parentElement.querySelectorAll("button").forEach(x => x.disabled = true);
+    } catch (e) { out.textContent = e.message; }
+  });
 }
 
 // ── Publish ──
@@ -257,10 +303,21 @@ function publishPage() {
         ${r.assumptions.length ? `<p class="note" style="margin-top:12px">Assumed: ${r.assumptions.map(esc).join(" ")}</p>` : ""}
         ${r.errors.length ? `<p class="note" style="color:var(--red)">${r.errors.map(esc).join("; ")}</p>` : ""}
         ${r.right_now ? `<p class="quote">Right now, the market ${r.right_now.pass ? "matches your market rules, so it would look for coins at the next cycle" : "doesn't match your market rules" + (r.right_now.results.filter(c => !c.pass).length ? ": " + r.right_now.results.filter(c => !c.pass).map(c => `${c.text}, but it's ${c.shown}`).join("; ") : "")}.</p>` : ""}
-        ${r.preview_only ? `<p class="note">This is the public preview. Publishing runs on the agent's machine, so a published strategy starts trading at its next hourly cycle.</p>` : `<button class="go" id="ppublish" ${r.errors.length ? "disabled" : ""}>Publish as a shishō</button>`}`;
+        ${r.preview_only ? `<p class="note">This is the public preview. Publishing runs on the agent's machine, so a published strategy starts trading at its next hourly cycle.</p>` : `
+        <div class="stat inner"><div class="k">Stake as your promise</div><div class="v"><span id="stakev">50M</span> <span style="font-size:13px;color:var(--muted);font-weight:500">RYO-CHAN</span></div>
+          <input type="range" id="pstake" min="10" max="200" step="5" value="50" style="width:100%;accent-color:var(--green)" aria-label="Stake in millions of RYO-CHAN">
+          <p class="note">Locked while you publish. Every decision is replayed from its evidence; each one that breaks your own rules costs 10% of the stake, paid to your followers.</p></div>
+        <button class="pill" id="pwallet" style="width:100%;margin-top:10px">Connect Solana wallet</button>
+        <button class="go" id="ppublish" ${r.errors.length ? "disabled" : ""}>Stake &amp; publish as a shishō</button>`}`;
+      if ($("#pstake")) $("#pstake").oninput = e => { $("#stakev").textContent = e.target.value + "M"; };
+      if ($("#pwallet")) $("#pwallet").onclick = async () => { try { const w = await connectWallet(); $("#pwallet").textContent = "Wallet " + short(w); } catch (e) { $("#pnote").textContent = e.message; } };
       $("#pnote").textContent = "Check the rules. Change your words and try again if anything's off.";
       const pb = $("#ppublish");
-      if (pb) pb.onclick = async () => { pb.disabled = true; try { const p = await api("/api/publish", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ strategy: s }) }); location.hash = `#/s/${p.id}`; } catch (e) { $("#pnote").textContent = e.message; pb.disabled = false; } };
+      if (pb) pb.onclick = async () => { pb.disabled = true; try {
+        const stake = Number($("#pstake").value) * 1e6;
+        const intent = await signIntent(`Shishō: I, ${s.creator.handle}, stake ${stake.toLocaleString()} RYO-CHAN behind "${s.name}". Slashed 10% for each decision that breaks its rules. Settles at RYO-CHAN launch. ${new Date().toISOString()}`);
+        const p = await api("/api/publish", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ strategy: s, stake, ...intent }) }); location.hash = `#/s/${p.id}`;
+      } catch (e) { $("#pnote").textContent = e.message; pb.disabled = false; } };
     } catch (e) { $("#pnote").textContent = e.message; }
     b.disabled = false;
   };

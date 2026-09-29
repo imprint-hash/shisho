@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { DATA } from "./evidence.js";
 import { loadStrategies } from "./strategies.js";
 import { record, decisions } from "./record.js";
-import { feeSplit, stakeStatus, follows, followerReturn } from "./market.js";
+import { feeSplit, tipSplit, stakeStatus, follows, followerReturn, earnings, payments, LIMITS } from "./market.js";
 import { replay } from "./replay.js";
 import { describe, showValue } from "./strategy.js";
 import { plainNote } from "./note.js";
@@ -23,7 +23,7 @@ function card(s, all, fl) {
     return_pct: r.return_pct, trades: r.trades, open: r.open, win_rate: r.win_rate, max_drawdown_pct: r.max_drawdown_pct,
     started_at: r.started_at, cycles: r.cycles, spark: week.map(([, v]) => v),
     followers: fl.filter(f => f.strategy === s.id).length,
-    fee: feeSplit(s.follow_fee_ryochan), stake: stakeStatus(s),
+    fee: feeSplit(s.follow_fee_ryochan), stake: stakeStatus(s), earnings: earnings(s.id),
     get rules_kept() { return { checked: this.stake.checked, kept: this.stake.checked - this.stake.breaches }; },
     state: last?.kind || "new", last_at: last?.at || null, last_note: last?.note?.text || null,
   };
@@ -67,5 +67,7 @@ export function shisho(id) {
     note: d.note || { text: plainNote(s, d), by: "template" },
     replay: ["enter", "exit", "stand_aside"].includes(d.kind) ? replay(d) : null }));
   return { ...card(s, all, fl), record: record(id), decisions: recent,
-    followers: fl.filter(f => f.strategy === id).map(f => ({ handle: f.handle, since: f.at, return_pct: followerReturn(f) })) };
+    followers: fl.filter(f => f.strategy === id).map(f => ({ handle: f.handle, since: f.at, return_pct: followerReturn(f) })),
+    tip_split: tipSplit(1_000_000), limits: LIMITS,
+    ledger: payments().filter(p => p.strategy === id).slice(-12).reverse().map(({ signature, message, ...p }) => ({ ...p, signature: signature ? signature.slice(0, 12) + "…" : null })) };
 }

@@ -3,7 +3,8 @@ import { createServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import { join, extname, normalize } from "node:path";
 import { state, shisho } from "../src/api.js";
-import { follow } from "../src/market.js";
+import { follow, pay } from "../src/market.js";
+import { loadStrategies } from "../src/strategies.js";
 import { compile, rightNow } from "../src/compile.js";
 import { validate, describe, showValue } from "../src/strategy.js";
 import { writeFileSync } from "node:fs";
@@ -30,16 +31,24 @@ createServer(async (req, res) => {
       return json(res, 200, { ...r, right_now: now && { pass: now.pass, results: now.results.map(c => ({ ...c, text: describe(c), shown: showValue(c.field, c.actual) })) } });
     }
     if (url.pathname === "/api/publish" && req.method === "POST") {
-      const { strategy: s } = await readBody(req);
+      const { strategy: s, stake, wallet, signature, message } = await readBody(req);
       // The page sends back what it was shown; it's checked again here, never trusted.
       if (!s || !handleOk(s.creator?.handle) || !/^[a-z0-9-]{3,40}$/.test(s.id || "")) return json(res, 400, { error: "That strategy isn't valid." });
       const clean = { id: s.id, name: String(s.name).slice(0, 40), creator: { handle: s.creator.handle.toLowerCase(), demo: false }, thesis: String(s.thesis).slice(0, 300), source_text: String(s.source_text || "").slice(0, 800),
-        universe: s.universe, market_filter: s.market_filter || [], entry: s.entry, exit: s.exit, sizing: s.sizing, follow_fee_ryochan: 5000000, stake_ryochan: 50000000, published_at: new Date().toISOString() };
+        universe: s.universe, market_filter: s.market_filter || [], entry: s.entry, exit: s.exit, sizing: s.sizing, follow_fee_ryochan: 5000000, stake_ryochan: Math.round(Number(stake) || 0), published_at: new Date().toISOString() };
+      if (!(clean.stake_ryochan >= 10_000_000 && clean.stake_ryochan <= 200_000_000)) return json(res, 400, { error: "Stake between 10,000,000 and 200,000,000 RYO-CHAN to publish." });
       const errors = validate(clean);
       if (errors.length) return json(res, 400, { error: errors.join("; ") });
       if (state().shisho.some(x => x.id === clean.id)) return json(res, 409, { error: "Already published." });
       writeFileSync(join(DATA, "strategies", `${clean.id}.json`), JSON.stringify(clean, null, 1));
+      pay({ type: "stake", strategy: clean.id, payer: clean.creator.handle, amount: clean.stake_ryochan, wallet, signature, message }, clean);
       return json(res, 200, { ok: true, id: clean.id });
+    }
+    if (url.pathname === "/api/pay" && req.method === "POST") {
+      const b = await readBody(req);
+      const s = loadStrategies().find(x => x.id === b.strategy);
+      if (!s) return json(res, 404, { error: "No such shishō." });
+      return json(res, 200, pay(b, s));
     }
     if (url.pathname === "/api/follow" && req.method === "POST") {
       const { handle, strategy } = await readBody(req);
