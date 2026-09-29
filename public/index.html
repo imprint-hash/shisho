@@ -69,6 +69,7 @@
   <aside class="side">
     <a class="brand" href="#/" style="color:inherit;text-decoration:none"><img src="tako-sensei.svg" width="34" height="34" alt="">Shishō <small>師匠</small></a>
     <a class="nav on" href="#/" id="nav-discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 11.5a3 3 0 1 0 0-6M17.5 14c2.5.4 4 2.4 4 5"/></svg>Discover shishō</a>
+    <a class="nav" href="#/publish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Publish a strategy</a>
     <a class="nav" href="#/how"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>How it works</a>
     <div class="mkt" id="mkt"><span><span class="dot"></span><b>RYO live</b></span><span>Reading the market…</span></div>
   </aside>
@@ -167,7 +168,7 @@ async function page(id) {
         <div class="who" style="gap:14px"><img src="tako-sensei.svg" width="64" height="64" alt=""><div><div style="font-size:26px;font-weight:800;letter-spacing:-.01em">${esc(s.name)}</div><small>by ${esc(s.creator.handle)}${s.creator.demo ? '<span class="tag">DEMO</span>' : ""} · started ${esc(when(s.started_at))} · ${s.cycles} cycles</small></div></div>
         <p style="color:var(--muted);margin-top:12px;max-width:70ch">${esc(s.thesis)}</p>
         <div class="rules">${s.rules.market.map(t => `<span>Market: <b>${esc(t)}</b></span>`).join("")}${s.rules.entry.map(t => `<span>Buy: <b>${esc(t)}</b></span>`).join("")}
-          <span>Exit: <b>+${s.rules.exit.take_profit_atr} ATR / −${s.rules.exit.stop_loss_atr} ATR / ${s.rules.exit.max_hold_hours}h</b></span><span>Size: <b>${s.rules.sizing.pct_per_trade}% · max ${s.rules.sizing.max_positions}</b></span></div>
+          <span>Exit: <b>${esc(s.rules.exit_text)}</b></span><span>Size: <b>${s.rules.sizing.pct_per_trade}% · max ${s.rules.sizing.max_positions}</b></span></div>
       </section>
       <aside class="card c-4" style="grid-row: span 3">
         <div class="stat inner" style="margin-top:0"><div class="k">Practice return</div><div class="v ${cls(r.return_pct)}">${pct(r.return_pct)}</div><div class="opts"><span>max drawdown ${r.max_drawdown_pct}%</span><span>book $${Math.round(r.equity).toLocaleString()}</span></div></div>
@@ -215,6 +216,49 @@ async function page(id) {
   };
 }
 
+// ── Publish ──
+function publishPage() {
+  const ex = ["Buy Solana or Avalanche when the market is fearful and they're oversold. Sell after a 10% bounce or cut at 5%. Never more than 2 at once.",
+    "Ride coins with strong momentum and real trading volume when altcoins are outperforming Bitcoin. Take profit at 2 ATR, stop at 1.",
+    "Only Bitcoin and Ethereum. Buy when the trend is up, RSI is between 45 and 60, and derivatives aren't crowded."];
+  $("#main").innerHTML = `<div class="top"><a class="back" href="#/">← All shishō</a></div>
+    <section class="banner"><h1>Become a <em>shishō</em></h1><p>Describe your strategy in plain words. Shishō turns it into exact rules on RYO's data, you check them, and the agent starts trading them in practice at the next hourly cycle.</p><img class="mascot" src="tako-sensei.svg" width="160" height="160" alt=""></section>
+    <div class="bento" style="margin-top:16px">
+      <section class="card c-6">
+        <div class="head"><h3>Your strategy</h3></div>
+        <textarea class="field" id="ptext" rows="6" style="resize:vertical" placeholder="When…, buy…, sell…">${esc(ex[0])}</textarea>
+        <div class="opts" style="margin-top:10px">${ex.map((e, i) => `<button class="pill" data-ex="${i}">Example ${i + 1}</button>`).join("")}</div>
+        <input class="field" id="phandle" placeholder="Your handle, e.g. hanako_88" maxlength="20" aria-label="Your handle">
+        <button class="go" id="pcompile">Turn it into rules</button>
+        <p class="note" id="pnote">The rules model writes the rules; Shishō's own code checks every field before anything can run.</p>
+      </section>
+      <section class="card c-6" id="presult"><div class="head"><h3>Your rules</h3></div><div class="empty">They'll appear here.</div></section>
+    </div>`;
+  document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#ptext").value = ex[b.dataset.ex]; });
+  $("#pcompile").onclick = async () => {
+    const b = $("#pcompile"); b.disabled = true; $("#pnote").textContent = "Reading your strategy…";
+    try {
+      const r = await api("/api/compile", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: $("#ptext").value, handle: $("#phandle").value }) });
+      const s = r.strategy, x = s.exit;
+      $("#presult").innerHTML = `<div class="head"><h3>${esc(s.name)}</h3><div class="r"><span class="badge ${r.errors.length ? "bad" : "ok"}">${r.errors.length ? "needs changes" : "✓ valid rules"}</span></div></div>
+        <p style="color:var(--muted)">${esc(s.thesis)}</p>
+        <div class="rules">
+          <span>Coins: <b>${esc(s.universe.source === "list" ? s.universe.symbols.join(", ") : `RYO's top ${s.universe.top_n}${s.universe.direction ? " " + s.universe.direction : ""} movers`)}</b></span>
+          ${r.readable.market.map(m => `<span>Market: <b>${esc(m)}</b></span>`).join("")}${r.readable.entry.map(m => `<span>Buy: <b>${esc(m)}</b></span>`).join("")}
+          <span>Exit: <b>${x.take_profit_pct != null ? "+" + x.take_profit_pct + "%" : "+" + x.take_profit_atr + " ATR"} / ${x.stop_loss_pct != null ? "−" + x.stop_loss_pct + "%" : "−" + x.stop_loss_atr + " ATR"} / ${x.max_hold_hours}h</b></span>
+          <span>Size: <b>${s.sizing.pct_per_trade}% · max ${s.sizing.max_positions}</b></span></div>
+        ${r.assumptions.length ? `<p class="note" style="margin-top:12px">Assumed: ${r.assumptions.map(esc).join(" ")}</p>` : ""}
+        ${r.errors.length ? `<p class="note" style="color:var(--red)">${r.errors.map(esc).join("; ")}</p>` : ""}
+        ${r.right_now ? `<p class="quote">Right now, the market ${r.right_now.pass ? "matches your market rules, so it would look for coins at the next cycle" : "doesn't match your market rules" + (r.right_now.results.filter(c => !c.pass).length ? ": " + r.right_now.results.filter(c => !c.pass).map(c => `${c.text}, but it's ${c.shown}`).join("; ") : "")}.</p>` : ""}
+        <button class="go" id="ppublish" ${r.errors.length ? "disabled" : ""}>Publish as a shishō</button>`;
+      $("#pnote").textContent = "Check the rules. Change your words and try again if anything's off.";
+      const pb = $("#ppublish");
+      if (pb) pb.onclick = async () => { pb.disabled = true; try { const p = await api("/api/publish", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ strategy: s }) }); location.hash = `#/s/${p.id}`; } catch (e) { $("#pnote").textContent = e.message; pb.disabled = false; } };
+    } catch (e) { $("#pnote").textContent = e.message; }
+    b.disabled = false;
+  };
+}
+
 function how() {
   $("#main").innerHTML = `<div class="top"><a class="back" href="#/">← All shishō</a></div>
   <section class="banner"><h1>How <em>Shishō</em> works</h1><p>Four steps, and code checks every one.</p><img class="mascot" src="tako-sensei.svg" width="170" height="170" alt=""></section>
@@ -228,9 +272,11 @@ function how() {
 
 async function route() {
   const h = location.hash || "#/";
+  document.querySelectorAll(".side .nav").forEach(a => a.classList.toggle("on", a.getAttribute("href") === (h.startsWith("#/s/") ? "#/" : h)));
   try {
     if (h.startsWith("#/s/")) await page(decodeURIComponent(h.slice(4)));
     else if (h === "#/how") how();
+    else if (h === "#/publish") publishPage();
     else await discover();
   } catch (e) { $("#main").innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
   window.scrollTo(0, 0);

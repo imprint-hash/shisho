@@ -35,9 +35,10 @@ const hoursBetween = (a, b) => (Date.parse(b) - Date.parse(a)) / 3600000;
 const round = (v, d = 6) => +v.toFixed(d);
 
 // Where a position closes, fixed at entry from the ATR the evidence showed then.
+// A strategy sets exits either in ATRs (the coin's normal daily range) or in plain percent.
 export const levels = (s, entryPrice, atrPct) => ({
-  take_profit: round(entryPrice * (1 + s.exit.take_profit_atr * atrPct / 100)),
-  stop_loss: round(entryPrice * (1 - s.exit.stop_loss_atr * atrPct / 100)),
+  take_profit: round(entryPrice * (1 + (s.exit.take_profit_pct ?? s.exit.take_profit_atr * atrPct) / 100)),
+  stop_loss: round(entryPrice * (1 - (s.exit.stop_loss_pct ?? s.exit.stop_loss_atr * atrPct) / 100)),
 });
 
 export function exitReason(s, pos, price, at) {

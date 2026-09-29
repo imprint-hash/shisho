@@ -4,6 +4,13 @@ import { readFileSync, existsSync } from "node:fs";
 import { join, extname, normalize } from "node:path";
 import { state, shisho } from "../src/api.js";
 import { follow } from "../src/market.js";
+import { compile, rightNow } from "../src/compile.js";
+import { validate, describe, showValue } from "../src/strategy.js";
+import { writeFileSync } from "node:fs";
+import { DATA } from "../src/evidence.js";
+
+const readBody = async req => { let b = ""; for await (const c of req) { b += c; if (b.length > 20000) throw new Error("Too long."); } return JSON.parse(b || "{}"); };
+const handleOk = h => /^[a-z0-9_]{3,20}$/.test(String(h || "").trim().toLowerCase());
 
 const PUB = join(process.cwd(), "public");
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".webp": "image/webp", ".json": "application/json" };
@@ -14,9 +21,28 @@ createServer(async (req, res) => {
   try {
     if (url.pathname === "/api/state") return json(res, 200, state());
     if (url.pathname.startsWith("/api/shisho/")) { const s = shisho(url.pathname.split("/").pop()); return s ? json(res, 200, s) : json(res, 404, { error: "No such shishō." }); }
+    if (url.pathname === "/api/compile" && req.method === "POST") {
+      const { text, handle } = await readBody(req);
+      if (!handleOk(handle)) return json(res, 400, { error: "A handle is 3-20 letters, digits or underscores." });
+      if (String(text || "").trim().length < 20) return json(res, 400, { error: "Describe the strategy in a sentence or two." });
+      const r = await compile(text, String(handle).trim().toLowerCase());
+      const now = rightNow(r.strategy, state().market);
+      return json(res, 200, { ...r, right_now: now && { pass: now.pass, results: now.results.map(c => ({ ...c, text: describe(c), shown: showValue(c.field, c.actual) })) } });
+    }
+    if (url.pathname === "/api/publish" && req.method === "POST") {
+      const { strategy: s } = await readBody(req);
+      // The page sends back what it was shown; it's checked again here, never trusted.
+      if (!s || !handleOk(s.creator?.handle) || !/^[a-z0-9-]{3,40}$/.test(s.id || "")) return json(res, 400, { error: "That strategy isn't valid." });
+      const clean = { id: s.id, name: String(s.name).slice(0, 40), creator: { handle: s.creator.handle.toLowerCase(), demo: false }, thesis: String(s.thesis).slice(0, 300), source_text: String(s.source_text || "").slice(0, 800),
+        universe: s.universe, market_filter: s.market_filter || [], entry: s.entry, exit: s.exit, sizing: s.sizing, follow_fee_ryochan: 5000000, stake_ryochan: 50000000, published_at: new Date().toISOString() };
+      const errors = validate(clean);
+      if (errors.length) return json(res, 400, { error: errors.join("; ") });
+      if (state().shisho.some(x => x.id === clean.id)) return json(res, 409, { error: "Already published." });
+      writeFileSync(join(DATA, "strategies", `${clean.id}.json`), JSON.stringify(clean, null, 1));
+      return json(res, 200, { ok: true, id: clean.id });
+    }
     if (url.pathname === "/api/follow" && req.method === "POST") {
-      let body = ""; for await (const c of req) body += c;
-      const { handle, strategy } = JSON.parse(body || "{}");
+      const { handle, strategy } = await readBody(req);
       if (!state().shisho.some(s => s.id === strategy)) return json(res, 404, { error: "No such shishō." });
       return json(res, 200, follow(handle, strategy));
     }

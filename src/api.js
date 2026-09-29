@@ -11,7 +11,8 @@ import { describe, showValue } from "./strategy.js";
 import { plainNote } from "./note.js";
 
 const latest = () => existsSync(join(DATA, "latest.json")) ? JSON.parse(readFileSync(join(DATA, "latest.json"), "utf8")) : null;
-const rulesText = s => ({ market: (s.market_filter || []).map(describe), entry: s.entry.map(describe), exit: s.exit, sizing: s.sizing });
+const exitText = x => `take profit ${x.take_profit_pct != null ? `+${x.take_profit_pct}%` : `+${x.take_profit_atr} ATR`}, stop ${x.stop_loss_pct != null ? `−${x.stop_loss_pct}%` : `−${x.stop_loss_atr} ATR`}, ${x.max_hold_hours}h max`;
+const rulesText = s => ({ market: (s.market_filter || []).map(describe), entry: s.entry.map(describe), exit: s.exit, exit_text: exitText(s.exit), sizing: s.sizing });
 
 function card(s, all, fl) {
   const r = record(s.id);

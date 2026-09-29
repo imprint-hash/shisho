@@ -78,7 +78,8 @@ export function validate(s) {
   need(Array.isArray(s.entry) && s.entry.length > 0, "at least one entry rule");
   for (const c of s.entry || []) need(c.field in COIN_FIELDS && OPS.includes(c.op), `entry rule on unknown field or operator: ${c.field} ${c.op}`);
   const x = s.exit || {};
-  need(x.take_profit_atr > 0 && x.stop_loss_atr > 0, "exits need a take-profit and a stop-loss, in ATRs");
+  need((x.take_profit_atr > 0 || x.take_profit_pct > 0) && (x.stop_loss_atr > 0 || x.stop_loss_pct > 0), "exits need a take-profit and a stop-loss, in ATRs or percent");
+  need(!(x.stop_loss_pct >= 100), "a stop-loss must be under 100%");
   need(x.max_hold_hours > 0 && x.max_hold_hours <= 24 * 30, "a position is held 1 hour to 30 days at most");
   const z = s.sizing || {};
   need(z.pct_per_trade > 0 && z.pct_per_trade <= 50, "each practice trade uses 1-50% of the book");
