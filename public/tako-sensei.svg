@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+<defs>
+    <!-- gummy material: thicker middle = richer colour, thin edges let light through -->
+    <radialGradient id="jadeBody" cx="45%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#b8ffd6"/><stop offset=".45" stop-color="#4fe894"/><stop offset=".85" stop-color="#1c9e5a"/><stop offset="1" stop-color="#127a44"/>
+    </radialGradient>
+    <radialGradient id="jadeArm" cx="50%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#8cf7bb"/><stop offset=".7" stop-color="#2cc873"/><stop offset="1" stop-color="#17904f"/>
+    </radialGradient>
+    <radialGradient id="grape" cx="45%" cy="35%" r="72%">
+      <stop offset="0" stop-color="#d9ccff"/><stop offset=".45" stop-color="#9b7dff"/><stop offset=".85" stop-color="#5f3fe0"/><stop offset="1" stop-color="#4527b8"/>
+    </radialGradient>
+    <radialGradient id="peach" cx="45%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#fff1e2"/><stop offset=".55" stop-color="#ffc99e"/><stop offset="1" stop-color="#e79a6a"/>
+    </radialGradient>
+    <radialGradient id="milk" cx="45%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#eef0f6"/><stop offset="1" stop-color="#c9ccd8"/>
+    </radialGradient>
+    <radialGradient id="cup" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#dcffe9"/><stop offset="1" stop-color="#5ad89a"/></radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="soft2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+
+    <!-- Tako Sensei: a gummy octopus master -->
+    <symbol id="tako" viewBox="0 0 400 400">
+      <ellipse cx="200" cy="366" rx="130" ry="16" fill="#000" opacity=".28" filter="url(#shadow)"/>
+      <!-- tentacles, drawn behind the head, each curling out -->
+      <g fill="url(#jadeArm)" opacity=".95">
+        <path d="M150 230 C 110 260, 70 280, 64 322 C 60 350, 92 356, 98 336 C 102 320, 88 318, 92 306 C 104 282, 140 272, 170 250 Z"/>
+        <path d="M250 230 C 290 260, 330 280, 336 322 C 340 350, 308 356, 302 336 C 298 320, 312 318, 308 306 C 296 282, 260 272, 230 250 Z"/>
+        <path d="M168 246 C 150 290, 128 318, 134 348 C 138 368, 166 364, 164 346 C 162 332, 150 330, 158 314 C 170 292, 186 276, 192 254 Z"/>
+        <path d="M232 246 C 250 290, 272 318, 266 348 C 262 368, 234 364, 236 346 C 238 332, 250 330, 242 314 C 230 292, 214 276, 208 254 Z"/>
+        <path d="M188 252 C 184 296, 180 330, 192 356 C 198 366, 210 360, 206 350 C 200 334, 204 300, 206 256 Z"/>
+        <path d="M140 222 C 96 232, 52 236, 40 268 C 32 290, 58 300, 66 284 C 72 272, 60 266, 70 258 C 88 246, 122 246, 150 238 Z"/>
+        <path d="M260 222 C 304 232, 348 236, 360 268 C 368 290, 342 300, 334 284 C 328 272, 340 266, 330 258 C 312 246, 278 246, 250 238 Z"/>
+        <path d="M212 252 C 222 292, 238 324, 228 352 C 224 362, 212 360, 214 348 C 218 330, 206 300, 196 256 Z" opacity=".9"/>
+      </g>
+      <!-- suction cups near the tips -->
+      <g fill="url(#cup)" opacity=".9">
+        <circle cx="80" cy="330" r="5"/><circle cx="90" cy="314" r="4"/><circle cx="320" cy="330" r="5"/><circle cx="310" cy="314" r="4"/>
+        <circle cx="148" cy="346" r="4.5"/><circle cx="252" cy="346" r="4.5"/><circle cx="54" cy="276" r="4"/><circle cx="346" cy="276" r="4"/>
+      </g>
+      <!-- head -->
+      <path d="M200 70 C 286 70, 318 138, 312 190 C 306 236, 260 262, 200 262 C 140 262, 94 236, 88 190 C 82 138, 114 70, 200 70 Z" fill="url(#jadeBody)"/>
+      <!-- inner glow and rim light: the gummy look -->
+      <ellipse cx="200" cy="170" rx="80" ry="66" fill="#caffe2" opacity=".35" filter="url(#soft)"/>
+      <path d="M200 70 C 286 70, 318 138, 312 190 C 306 236, 260 262, 200 262 C 140 262, 94 236, 88 190 C 82 138, 114 70, 200 70 Z" fill="none" stroke="#eafff3" stroke-opacity=".55" stroke-width="3"/>
+      <ellipse cx="156" cy="112" rx="34" ry="16" fill="#fff" opacity=".7" transform="rotate(-24 156 112)" filter="url(#soft2)"/>
+      <ellipse cx="138" cy="130" rx="7" ry="5" fill="#fff" opacity=".9"/>
+      <!-- topknot with a green band -->
+      <ellipse cx="200" cy="58" rx="26" ry="20" fill="url(#milk)"/>
+      <ellipse cx="192" cy="52" rx="8" ry="5" fill="#fff" opacity=".9"/>
+      <rect x="184" y="68" width="32" height="10" rx="4" fill="#e0b44c"/>
+      <!-- red hachimaki headband with gold trim, RYO's samurai colours -->
+      <path d="M96 118 C 140 100, 260 100, 304 118 L 306 136 C 262 118, 138 118, 94 136 Z" fill="#b8262b"/>
+      <path d="M96 118 C 140 100, 260 100, 304 118" fill="none" stroke="#e0b44c" stroke-width="3"/>
+      <path d="M94 136 C 138 118, 262 118, 306 136" fill="none" stroke="#e0b44c" stroke-width="3"/>
+      <path d="M300 124 C 322 118, 340 126, 352 112 C 346 132, 330 138, 306 136 Z" fill="#b8262b"/>
+      <path d="M302 130 C 326 136, 342 150, 356 146 C 344 160, 322 154, 304 138 Z" fill="#9c1f24"/>
+      <circle cx="200" cy="118" r="9" fill="#e0b44c"/><g transform="translate(193.5 111.5) scale(0.42)"><g fill="none" stroke="#b8262b" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4 H29"/><path d="M5 12 V29 M5 12 H27 V27 Q27 30 24 29"/><path d="M12 6 V22 M20 6 V22 M9 17 H23"/><path d="M12 22 L9 26 M20 22 L23 26"/></g></g>
+      <!-- long flowing eyebrows -->
+      <path d="M140 150 C 154 132, 180 134, 188 146 C 176 142, 158 146, 128 176 Z" fill="url(#milk)"/>
+      <path d="M260 150 C 246 132, 220 134, 212 146 C 224 142, 242 146, 272 176 Z" fill="url(#milk)"/>
+      <!-- closed, knowing eyes -->
+      <path d="M152 170 Q 164 180 176 170" stroke="#0b3d24" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M224 170 Q 236 180 248 170" stroke="#0b3d24" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="140" cy="194" r="10" fill="#ff8aa0" opacity=".35"/><circle cx="260" cy="194" r="10" fill="#ff8aa0" opacity=".35"/>
+      <!-- little white beard and smile -->
+      <path d="M178 206 C 180 236, 190 258, 200 270 C 210 258, 220 236, 222 206 C 212 214, 188 214, 178 206 Z" fill="url(#milk)" opacity=".97"/>
+      <path d="M190 200 Q 200 208 210 200" stroke="#0b3d24" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <!-- one arm holds a tiny scroll of rules -->
+      <g transform="translate(300 214) rotate(18)">
+        <rect x="-4" y="-26" width="44" height="30" rx="4" fill="#fff5e0" stroke="#e6cf9a" stroke-width="2"/>
+        <g transform="translate(7 -24) scale(0.72)"><g fill="none" stroke="#b8262b" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4 H29"/><path d="M5 12 V29 M5 12 H27 V27 Q27 30 24 29"/><path d="M12 6 V22 M20 6 V22 M9 17 H23"/><path d="M12 22 L9 26 M20 22 L23 26"/></g></g>
+      </g>
+    </symbol>
+
+    </defs>
+<use href="#tako"/>
+</svg>

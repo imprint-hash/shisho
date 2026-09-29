@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shishō · Discover</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@900&display=swap">
+<style>
+  :root {
+    --bg: #000; --panel: #0a0a0d; --inner: #111116; --line: #ffffff12; --line2: #ffffff1f;
+    --ink: #f1f1f4; --muted: #8b8b98; --dim: #5a5a66;
+    --green: #3ef08a; --violet: #8b6cff; --pink: #e05cc8; --orange: #ff8a5c; --red: #ff5c5c; --gold: #f5c542;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.5 Manrope, system-ui, sans-serif; }
+  .mono { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+  .app { display: grid; grid-template-columns: 232px 1fr; gap: 18px; max-width: 1340px; margin: 0 auto; padding: 18px; }
+
+  .side { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 16px 12px; height: calc(100vh - 36px); position: sticky; top: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; padding: 6px 8px 18px; }
+  .brand small { font-family: "Noto Serif JP"; font-size: 14px; color: var(--muted); }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; color: var(--muted); font-weight: 500; }
+  .nav svg { width: 17px; height: 17px; }
+  .nav.on { color: var(--ink); background: linear-gradient(180deg, #22222c, #15151b); border: 1px solid var(--line2); }
+  .side .mkt { margin-top: auto; background: var(--inner); border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
+  .side .mkt b { color: var(--ink); font-weight: 600; }
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); margin-right: 6px; vertical-align: 1px; }
+
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .search { flex: 1; max-width: 360px; border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 10px 14px; color: var(--dim); font-size: 13px; }
+  .pill { border: 1px solid var(--line2); background: linear-gradient(180deg, #1a1a22, #0e0e12); border-radius: 12px; padding: 8px 14px; color: var(--muted); font-weight: 500; font-size: 13px; white-space: nowrap; }
+  .pill.on { color: var(--ink); background: linear-gradient(180deg, #2a2a36, #15151c); }
+  .cta { border: 0; border-radius: 12px; padding: 9px 16px; font: 700 13px Manrope; color: #04130a; background: linear-gradient(180deg, #6cf5a8, var(--green)); }
+  .me { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .me .av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #2a2a36, #111); border: 1px solid var(--line2); }
+
+  .banner { position: relative; overflow: hidden; border-radius: 24px; border: 1px solid var(--line2); padding: 30px 32px; min-height: 200px;
+    background: radial-gradient(600px 260px at 85% 40%, #3ef08a2b, transparent 60%), radial-gradient(500px 240px at 60% 120%, #8b6cff33, transparent 60%), linear-gradient(135deg, #0d1511, #0a0a0e); }
+  .banner h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; }
+  .banner h1 em { font-style: normal; color: var(--green); }
+  .banner p { color: var(--muted); margin-top: 6px; }
+  .banner .btns { display: flex; gap: 8px; margin-top: 20px; }
+  .banner .mascot { position: absolute; right: 44px; top: 50%; transform: translateY(-50%); filter: drop-shadow(0 0 40px #3ef08a55); }
+  .rays { position: absolute; right: 0; top: 0; bottom: 0; width: 420px; background: repeating-linear-gradient(115deg, transparent 0 22px, #3ef08a08 22px 24px); mask-image: linear-gradient(90deg, transparent, #000 40%); }
+
+  .sec { display: flex; align-items: baseline; margin: 26px 0 12px; }
+  .sec h2 { font-size: 20px; font-weight: 700; }
+  .sec a { margin-left: auto; color: var(--green); font-size: 13px; text-decoration: none; }
+  .filters { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 16px; overflow: hidden; }
+  .card::before { content: ""; position: absolute; inset: 0 20% auto; height: 1px; background: linear-gradient(90deg, transparent, #ffffff40, transparent); }
+  .who { display: flex; align-items: center; gap: 10px; }
+  .who .ava { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 1px solid var(--line2); background: #000; flex: none; }
+  .who b { display: block; font-size: 15px; font-weight: 700; }
+  .who small { color: var(--muted); font-size: 11.5px; }
+  .copy { margin-left: auto; border: 0; border-radius: 999px; padding: 6px 14px; font: 700 12px Manrope; color: #04130a; background: var(--green); }
+  .tag { font: 500 9.5px "JetBrains Mono"; color: var(--gold); border: 1px solid #f5c54255; border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+  .roi { margin-top: 16px; font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+  .roi b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -.01em; color: var(--green); }
+  .roi b.flat { color: var(--muted); }
+  .spark { display: block; width: calc(100% + 32px); margin: 4px -16px 0; height: 78px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; font-size: 11px; color: var(--muted); }
+  .stats b { display: block; color: var(--ink); font: 500 13px "JetBrains Mono"; margin-top: 2px; }
+  .stats > div:nth-child(2) { text-align: center; } .stats > div:nth-child(3) { text-align: right; }
+  .rule { margin-top: 12px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+  .rule span { color: var(--ink); }
+  .note { color: var(--dim); font-size: 11.5px; margin-top: 14px; }
+  @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } .side { display: none; } .cards { grid-template-columns: 1fr; } .banner .mascot { display: none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2c4"/><stop offset="1" stop-color="#f3c79f"/></linearGradient>
+    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b6cff"/><stop offset="1" stop-color="#5a3fd6"/></linearGradient>
+    <symbol id="master" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="96" fill="#0d0d12" stroke="#3ef08a" stroke-width="3"/>
+      <path d="M40 196 C 44 150, 70 136, 100 136 C 130 136, 156 150, 160 196 Z" fill="url(#robe)"/>
+      <path d="M100 136 L 84 196 M100 136 L116 196" stroke="#2e1f86" stroke-width="4"/>
+      <ellipse cx="100" cy="36" rx="17" ry="13" fill="#e8e8ee"/>
+      <rect x="90" y="44" width="20" height="8" rx="3" fill="#3ef08a"/>
+      <ellipse cx="100" cy="92" rx="44" ry="48" fill="url(#skin)"/>
+      <path d="M58 70 C 70 54, 132 54, 142 70 C 130 62, 70 62, 58 70 Z" fill="#e8e8ee"/>
+      <path d="M58 84 C 70 72, 84 72, 94 80 C 82 78, 70 82, 52 98 Z" fill="#fafafa"/>
+      <path d="M142 84 C 130 72, 116 72, 106 80 C 118 78, 130 82, 148 98 Z" fill="#fafafa"/>
+      <path d="M72 92 Q 80 98 88 92" stroke="#3a2a22" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M112 92 Q 120 98 128 92" stroke="#3a2a22" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <circle cx="70" cy="104" r="6" fill="#ff9a8a" opacity=".45"/><circle cx="130" cy="104" r="6" fill="#ff9a8a" opacity=".45"/>
+      <path d="M66 110 C 70 150, 88 170, 100 176 C 112 170, 130 150, 134 110 C 122 124, 112 128, 100 128 C 88 128, 78 124, 66 110 Z" fill="#fafafa"/>
+      <path d="M88 116 Q 100 110 112 116 Q 100 122 88 116 Z" fill="#e2e2ea"/>
+      <path d="M92 124 Q 100 130 108 124" stroke="#b58a70" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3ef08a" stop-opacity=".35"/><stop offset="1" stop-color="#3ef08a" stop-opacity="0"/></linearGradient>
+    <linearGradient id="sv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b6cff" stop-opacity=".35"/><stop offset="1" stop-color="#8b6cff" stop-opacity="0"/></linearGradient>
+    <pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#3ef08a" opacity=".35"/></pattern>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><svg width="30" height="30"><use href="#master"/></svg>Shishō <small>師匠</small></div>
+    <div class="nav on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 11.5a3 3 0 1 0 0-6M17.5 14c2.5.4 4 2.4 4 5"/></svg>Discover shishō</div>
+    <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18l5-6 4 3 7-9"/></svg>Following</div>
+    <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Publish a strategy</div>
+    <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Decision log</div>
+    <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>How it works</div>
+    <div class="mkt">
+      <span><span class="dot"></span><b>RYO live</b></span>
+      <span>Fear &amp; Greed <b>69 · greed</b></span>
+      <span>Altseason <b>transition</b></span>
+      <span>Funding <b>normal</b></span>
+    </div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div class="search">Search shishō, coins or styles</div>
+      <span class="pill" style="font-family:'Noto Serif JP',serif">日本語</span>
+      <div class="me"><button class="cta">Connect wallet</button><span class="av"></span></div>
+    </div>
+
+    <section class="banner">
+      <div class="rays"></div>
+      <h1>Learn from a <em>shishō</em>.<br>Follow a strategy you can check.</h1>
+      <p>Every trade shows the RYO evidence behind it. 4 shishō · 5 practice trades recorded today.</p>
+      <div class="btns"><span class="pill on">Become a shishō</span><span class="pill">How following works</span></div>
+      <svg class="mascot" width="170" height="170"><use href="#master"/></svg>
+    </section>
+
+    <div class="sec"><h2>All shishō</h2><a href="#">See all</a></div>
+    <div class="filters">
+      <span class="pill on">Best record</span><span class="pill">7d return</span><span class="pill">Win rate</span><span class="pill">Followers</span><span class="pill">Stake</span><span class="pill">Newest</span><span class="pill">Calm markets</span><span class="pill">Altcoins</span><span class="pill">BTC · ETH only</span>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="who"><div class="ava"><svg width="40" height="40"><use href="#master"/></svg></div><div><b>Calm Trend</b><small>kaze<span class="tag">DEMO</span> · trend, calm markets</small></div><button class="copy">Follow</button></div>
+        <div class="roi">7-DAY PRACTICE RETURN<b>+4.20%</b></div>
+        <svg class="spark" viewBox="0 0 300 78" preserveAspectRatio="none"><path d="M0 60 C 30 58, 50 44, 80 50 S 130 30, 160 38 S 210 20, 240 26 S 280 8, 300 6 L300 78 L0 78Z" fill="url(#sg)"/><path d="M0 60 C 30 58, 50 44, 80 50 S 130 30, 160 38 S 210 20, 240 26 S 280 8, 300 6 L300 78 L0 78Z" fill="url(#dots)" opacity=".5"/><path d="M0 60 C 30 58, 50 44, 80 50 S 130 30, 160 38 S 210 20, 240 26 S 280 8, 300 6" fill="none" stroke="#3ef08a" stroke-width="2"/></svg>
+        <div class="stats"><div>Trades<b>12</b></div><div>Followers<b>49</b></div><div>Win rate<b>58%</b></div></div>
+        <div class="rule">Buys: <span>uptrend · RSI 50–68 · Fear &amp; Greed ≤ 75</span></div>
+      </article>
+      <article class="card">
+        <div class="who"><div class="ava"><svg width="40" height="40"><use href="#master"/></svg></div><div><b>Rotation Scout</b><small>tsubame<span class="tag">DEMO</span> · altcoin rotation</small></div><button class="copy">Follow</button></div>
+        <div class="roi">7-DAY PRACTICE RETURN<b>+2.60%</b></div>
+        <svg class="spark" viewBox="0 0 300 78" preserveAspectRatio="none"><path d="M0 56 C 40 62, 60 40, 100 46 S 150 58, 180 40 S 240 36, 270 22 S 290 20, 300 18 L300 78 L0 78Z" fill="url(#sv)"/><path d="M0 56 C 40 62, 60 40, 100 46 S 150 58, 180 40 S 240 36, 270 22 S 290 20, 300 18" fill="none" stroke="#8b6cff" stroke-width="2"/></svg>
+        <div class="stats"><div>Trades<b>9</b></div><div>Followers<b>31</b></div><div>Win rate<b>55%</b></div></div>
+        <div class="rule">Buys: <span>altseason starting · real volume · +5–25% day</span></div>
+      </article>
+      <article class="card">
+        <div class="who"><div class="ava"><svg width="40" height="40"><use href="#master"/></svg></div><div><b>Steady Majors</b><small>yama<span class="tag">DEMO</span> · BTC · ETH · SOL</small></div><button class="copy">Follow</button></div>
+        <div class="roi">7-DAY PRACTICE RETURN<b>+1.10%</b></div>
+        <svg class="spark" viewBox="0 0 300 78" preserveAspectRatio="none"><path d="M0 50 C 50 48, 80 44, 120 46 S 190 38, 230 36 S 280 30, 300 30 L300 78 L0 78Z" fill="url(#sg)"/><path d="M0 50 C 50 48, 80 44, 120 46 S 190 38, 230 36 S 280 30, 300 30" fill="none" stroke="#3ef08a" stroke-width="2"/></svg>
+        <div class="stats"><div>Trades<b>4</b></div><div>Followers<b>22</b></div><div>Win rate<b>75%</b></div></div>
+        <div class="rule">Buys: <span>calm derivatives · uptrend · low volatility</span></div>
+      </article>
+    </div>
+
+    <div class="sec"><h2>Waiting for their moment</h2><a href="#">See all</a></div>
+    <div class="cards">
+      <article class="card">
+        <div class="who"><div class="ava"><svg width="40" height="40"><use href="#master"/></svg></div><div><b>Fear Buyer</b><small>iwa<span class="tag">DEMO</span> · buys fear, rarely</small></div><button class="copy">Follow</button></div>
+        <div class="roi">STANDING ASIDE<b class="flat" style="font-size:17px">Needs Fear &amp; Greed ≤ 35 · now 69</b></div>
+        <div class="stats" style="margin-top:14px"><div>Trades<b>0</b></div><div>Followers<b>8</b></div><div>Stake<b>30M</b></div></div>
+        <div class="rule">Buys: <span>BTC · ETH · SOL · BNB · XRP when the market is scared</span></div>
+      </article>
+    </div>
+    <p class="note">Sketch: returns, trades, win rates and followers are placeholder numbers to show the layout. Demo shishō are written by the Shishō team; their trades are real practice trades on live RYO data.</p>
+  </main>
+</div>
+</body>
+</html>

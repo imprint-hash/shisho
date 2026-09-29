@@ -1,0 +1,13 @@
+{
+ "id": "fear-buyer",
+ "name": "Fear Buyer",
+ "creator": { "handle": "iwa", "demo": true },
+ "thesis": "Buy only the biggest coins, and only when the whole market is scared and they've been sold hard. Patient, rare, and it waits a long time.",
+ "universe": { "source": "list", "symbols": ["BTC", "ETH", "SOL", "BNB", "XRP"] },
+ "market_filter": [ { "field": "fear_greed", "op": "<=", "value": 35 } ],
+ "entry": [ { "field": "rsi_14", "op": "<", "value": 40 } ],
+ "exit": { "take_profit_atr": 3, "stop_loss_atr": 1.5, "max_hold_hours": 336 },
+ "sizing": { "pct_per_trade": 25, "max_positions": 2 },
+ "follow_fee_ryochan": 3000000,
+ "stake_ryochan": 30000000
+}

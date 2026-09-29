@@ -1,0 +1,35 @@
+{
+ "strategy": "calm-trend",
+ "cash": 6400,
+ "positions": [
+  {
+   "symbol": "CRV",
+   "opened_at": "2026-09-29T15:03:11.959Z",
+   "entry_price": 0.40804334485872906,
+   "atr_at_entry_pct": 7.39,
+   "units": 4901.4400680703,
+   "cost_usd": 2000,
+   "take_profit": 0.468352,
+   "stop_loss": 0.377889,
+   "last_price": 0.40957414403229286,
+   "last_marked_at": "2026-09-29T15:06:07.653Z",
+   "entry_evidence": "8328de3f07640c4e"
+  },
+  {
+   "symbol": "ZBCN",
+   "opened_at": "2026-09-29T15:06:07.653Z",
+   "entry_price": 0.002537284112454675,
+   "atr_at_entry_pct": 6.56,
+   "units": 630595.5222539478,
+   "cost_usd": 1600,
+   "take_profit": 0.00287,
+   "stop_loss": 0.002371,
+   "last_price": 0.002537284112454675,
+   "last_marked_at": "2026-09-29T15:06:07.653Z",
+   "entry_evidence": "f4bc5494f8cd9ce3"
+  }
+ ],
+ "closed": [],
+ "started_at": "2026-09-29T15:03:11.959Z",
+ "cycles": 2
+}

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shishō</title>
+<link rel="icon" href="tako-sensei.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@900&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* the shishō page, from the approved detail sketch */
+  .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+  .c-8 { grid-column: span 8; } .c-4 { grid-column: span 4; } .c-12 { grid-column: span 12; } .c-6 { grid-column: span 6; }
+  .head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .head h3 { font-size: 16px; font-weight: 600; }
+  .head .r { margin-left: auto; display: flex; gap: 6px; }
+  .inner { background: var(--inner); border: 1px solid var(--line); border-radius: 16px; }
+  .depth { display: grid; gap: 8px; }
+  .drow { display: grid; grid-template-columns: 1fr 86px; gap: 10px; align-items: center; font-size: 12.5px; }
+  .dbar { position: relative; height: 28px; border-radius: 8px; background: #16161d; overflow: hidden; display: flex; align-items: center; padding: 0 10px; }
+  .dbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 8px; }
+  .dbar span { position: relative; font-weight: 600; }
+  .dbar.pass i { background: linear-gradient(90deg, #1f9e59, var(--green)); } .dbar.pass span { color: #03140a; }
+  .dbar.fail i { background: linear-gradient(90deg, #7a2f1f, var(--orange)); } .dbar.fail span { color: #1b0703; }
+  .drow .v { text-align: right; font-family: "JetBrains Mono", monospace; }
+  .stat { padding: 12px 14px; margin-top: 10px; }
+  .stat .k { color: var(--muted); font-size: 12px; }
+  .stat .v { font-size: 22px; font-weight: 700; margin: 2px 0 6px; }
+  .opts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .opts span { font-size: 11.5px; border-radius: 999px; padding: 4px 10px; background: #1a1a22; color: var(--muted); }
+  .split { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0 6px; }
+  .legend { display: flex; gap: 12px; font-size: 11.5px; color: var(--muted); flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; margin-right: 5px; vertical-align: 3px; }
+  .go { display: block; width: 100%; margin-top: 12px; border: 0; border-radius: 14px; padding: 13px; font: 700 14px Manrope; color: #04130a; background: linear-gradient(180deg, #6cf5a8, var(--green)); cursor: pointer; }
+  .go:disabled { opacity: .6; cursor: default; }
+  .field { width: 100%; margin-top: 10px; background: var(--inner); border: 1px solid var(--line2); border-radius: 12px; padding: 11px 12px; color: var(--ink); font: 500 13px Manrope; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; font: 500 11.5px "JetBrains Mono"; border-radius: 999px; padding: 4px 10px; }
+  .badge.ok { background: #3ef08a1a; color: var(--green); } .badge.bad { background: #ff5c5c1a; color: var(--red); } .badge.info { background: #8b6cff1f; color: #b8a6ff; }
+  .quote { border-left: 2px solid var(--green); padding: 2px 0 2px 12px; color: var(--muted); font-size: 13.5px; margin-top: 14px; }
+  .log { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .log th { text-align: left; color: var(--muted); font-weight: 500; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .log td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .log td:first-child { white-space: nowrap; color: var(--muted); font-family: "JetBrains Mono"; }
+  .kind { font: 600 11px "JetBrains Mono"; text-transform: uppercase; letter-spacing: .04em; }
+  .kind.enter { color: var(--green); } .kind.exit { color: var(--gold); } .kind.stand_aside, .kind.no_entry, .kind.full { color: var(--muted); } .kind.unmarked, .kind.no_candidates { color: var(--orange); }
+  .pos { padding: 12px 14px; margin-top: 10px; }
+  .pos .l1 { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; }
+  .rng { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #ff8a5c66, #16161d 40%, #16161d 60%, #3ef08a66); margin: 12px 0 6px; }
+  .rng b { position: absolute; top: -5px; width: 3px; height: 18px; border-radius: 2px; background: var(--ink); }
+  .ends { display: flex; justify-content: space-between; font: 400 11px "JetBrains Mono"; color: var(--muted); }
+  .back { color: var(--muted); text-decoration: none; font-size: 13px; }
+  .empty { color: var(--dim); padding: 30px; text-align: center; }
+  .rules { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .rules span { font-size: 12px; border: 1px solid var(--line2); border-radius: 999px; padding: 4px 10px; color: var(--muted); }
+  .rules span b { color: var(--ink); font-weight: 600; }
+  a.card { color: inherit; text-decoration: none; display: block; }
+  a.card:hover { border-color: var(--line2); }
+  a.card:focus-visible, .pill:focus-visible, .go:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  @media (max-width: 1100px) { .c-8, .c-4, .c-6 { grid-column: span 12; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <a class="brand" href="#/" style="color:inherit;text-decoration:none"><img src="tako-sensei.svg" width="34" height="34" alt="">Shishō <small>師匠</small></a>
+    <a class="nav on" href="#/" id="nav-discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 11.5a3 3 0 1 0 0-6M17.5 14c2.5.4 4 2.4 4 5"/></svg>Discover shishō</a>
+    <a class="nav" href="#/how"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>How it works</a>
+    <div class="mkt" id="mkt"><span><span class="dot"></span><b>RYO live</b></span><span>Reading the market…</span></div>
+  </aside>
+  <main id="main"><div class="empty">Loading…</div></main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const api = async (p, opts) => { const r = await fetch(p, opts); const j = await r.json(); if (!r.ok) throw new Error(j.error || "Request failed"); return j; };
+const pct = v => v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(2)}%`;
+const cls = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
+const big = n => n >= 1e9 ? `${+(n / 1e9).toFixed(1)}B` : n >= 1e6 ? `${+(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${+(n / 1e3).toFixed(1)}K` : String(n);
+const when = s => s ? new Date(s).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+const val = v => typeof v === "number" ? (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : String(+v.toFixed(v < 1 ? 4 : 2))) : v === true ? "yes" : v === false ? "no" : v == null ? "no data" : String(v);
+const COLORS = ["#3ef08a", "#8b6cff", "#e05cc8", "#ff8a5c"];
+const STATE = { enter: "Just bought", exit: "Just sold", stand_aside: "Standing aside", no_entry: "Watching", full: "Fully invested", new: "Starting", no_candidates: "Scan unavailable", unmarked: "Holding" };
+
+function sparkPath(vals, w = 300, h = 78, pad = 8) {
+  if (vals.length < 2) return null;
+  const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
+  return vals.map((v, i) => `${i ? "L" : "M"}${(i / (vals.length - 1) * w).toFixed(1)} ${(pad + (hi - v) / span * (h - 2 * pad)).toFixed(1)}`).join(" ");
+}
+function spark(vals, color) {
+  const d = sparkPath(vals);
+  if (!d) return `<div class="spark" style="height:78px;display:grid;place-items:center;color:var(--dim);font-size:12px">The record starts with its first cycle</div>`;
+  const id = "g" + Math.random().toString(36).slice(2, 7);
+  return `<svg class="spark" viewBox="0 0 300 78" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${d} L300 78 L0 78Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+function market(m, at) {
+  if (!m) return;
+  $("#mkt").innerHTML = `<span><span class="dot"></span><b>RYO live</b> · ${esc(when(at))}</span>
+    <span>Fear &amp; Greed <b>${esc(m.fear_greed)}</b></span><span>Sentiment <b>${esc((m.sentiment_regime || "").replace(/_/g, " "))}</b></span>
+    <span>Altseason <b>${esc(m.altseason_phase)}</b></span><span>Funding <b>${esc(m.funding_crowding)}</b></span>`;
+}
+
+// ── Discover ──
+let sortBy = "return";
+async function discover() {
+  const st = await api("/api/state");
+  market(st.market, st.updated_at);
+  const decided = st.shisho.reduce((a, s) => a + s.trades, 0);
+  const sorters = { return: (a, b) => b.return_pct - a.return_pct, followers: (a, b) => b.followers - a.followers, stake: (a, b) => b.stake.remaining - a.stake.remaining, trades: (a, b) => b.trades - a.trades };
+  const list = [...st.shisho].sort(sorters[sortBy]);
+  const active = list.filter(s => s.state !== "stand_aside"), waiting = list.filter(s => s.state === "stand_aside");
+  const cardHtml = (s, i) => `<a class="card" href="#/s/${esc(s.id)}">
+      <div class="who"><div class="ava"><img src="tako-sensei.svg" width="40" height="40" alt=""></div><div><b>${esc(s.name)}</b><small>${esc(s.creator.handle)}${s.creator.demo ? '<span class="tag">DEMO</span>' : ""} · ${esc(STATE[s.state] || s.state)}</small></div><span class="copy">Follow</span></div>
+      ${s.state === "stand_aside"
+        ? `<div class="roi">STANDING ASIDE<b class="flat" style="font-size:16px">${esc(s.rules.market.join(" · ") || "Market rules not met")}</b></div>`
+        : `<div class="roi">PRACTICE RETURN SINCE ${esc(when(s.started_at).toUpperCase())}<b class="${cls(s.return_pct)}">${pct(s.return_pct)}</b></div>${spark(s.spark, COLORS[i % 4])}`}
+      <div class="stats"><div>Trades<b>${s.trades}</b></div><div>Followers<b>${s.followers}</b></div><div>${s.win_rate == null ? "Stake" : "Win rate"}<b>${s.win_rate == null ? big(s.stake.remaining) : s.win_rate + "%"}</b></div></div>
+      <div class="rule">Buys: <span>${esc(s.rules.entry.slice(0, 3).join(" · "))}</span></div></a>`;
+  $("#main").innerHTML = `
+    <div class="top"><div class="search">${list.length} shishō · ${decided} practice trades · every one replayable from RYO evidence</div></div>
+    <section class="banner"><div class="rays"></div>
+      <h1>Learn from a <em>shishō</em>.<br>Follow a strategy you can check.</h1>
+      <p>Traders publish their strategy as rules. An agent runs them every hour on RYO-CHAN's live market data, records each practice trade with the evidence behind it, and anyone can replay any decision.</p>
+      <div class="btns"><a class="pill on" href="#/how">How it works</a><a class="pill" href="#/s/${esc(list[0]?.id || "")}">See a shishō</a></div>
+      <img class="mascot" src="tako-sensei.svg" width="190" height="190" alt="Tako Sensei, the Shishō mascot"></section>
+    <div class="sec"><h2>All shishō</h2></div>
+    <div class="filters">${[["return", "Best return"], ["trades", "Most trades"], ["followers", "Followers"], ["stake", "Stake"]].map(([k, l]) => `<button class="pill${k === sortBy ? " on" : ""}" data-sort="${k}">${l}</button>`).join("")}</div>
+    <div class="cards">${active.map(cardHtml).join("")}</div>
+    ${waiting.length ? `<div class="sec"><h2>Waiting for their moment</h2></div><div class="cards">${waiting.map((s, i) => cardHtml(s, i + active.length)).join("")}</div>` : ""}
+    <p class="note">Demo shishō are written by the Shishō team to seed the marketplace; their trades are real practice trades on live RYO data. Fees and stakes are in RYO-CHAN and simulated until RYO-CHAN staking launches.</p>`;
+  document.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => { sortBy = b.dataset.sort; discover(); });
+}
+
+// ── One shishō ──
+function barWidth(c) {
+  if (!c.pass && c.actual == null) return 0;
+  if (typeof c.actual !== "number" || typeof c.value !== "number") return c.pass ? 100 : 18;
+  const r = [">", ">="].includes(c.op) ? c.actual / c.value : c.value / c.actual;
+  return Math.max(12, Math.min(100, (c.pass ? 70 : 20) + (r - 1) * 60));
+}
+const ruleText = c => `${c.field.replace(/_/g, " ")} ${({ ">": ">", ">=": "≥", "<": "<", "<=": "≤", "==": "is", "!=": "is not", in: "in", not_in: "not in" })[c.op]} ${Array.isArray(c.value) ? c.value.join("/") : val(c.value)}`;
+
+async function page(id) {
+  const s = await api(`/api/shisho/${encodeURIComponent(id)}`);
+  const st = await api("/api/state"); market(st.market, st.updated_at);
+  const r = s.record, d0 = s.decisions.find(d => ["enter", "exit", "stand_aside"].includes(d.kind)) || s.decisions[0];
+  const curve = r.curve.map(([, v]) => v);
+  const cd = sparkPath(curve, 760, 220, 16);
+  const title = !d0 ? "No decisions yet" : d0.kind === "enter" ? `Why it bought ${d0.symbol}` : d0.kind === "exit" ? `Why it sold ${d0.symbol}` : d0.kind === "stand_aside" ? "Why it's standing aside" : "Latest check";
+  $("#main").innerHTML = `
+    <div class="top"><a class="back" href="#/">← All shishō</a></div>
+    <div class="bento">
+      <section class="card c-8">
+        <div class="who" style="gap:14px"><img src="tako-sensei.svg" width="64" height="64" alt=""><div><div style="font-size:26px;font-weight:800;letter-spacing:-.01em">${esc(s.name)}</div><small>by ${esc(s.creator.handle)}${s.creator.demo ? '<span class="tag">DEMO</span>' : ""} · started ${esc(when(s.started_at))} · ${s.cycles} cycles</small></div></div>
+        <p style="color:var(--muted);margin-top:12px;max-width:70ch">${esc(s.thesis)}</p>
+        <div class="rules">${s.rules.market.map(t => `<span>Market: <b>${esc(t)}</b></span>`).join("")}${s.rules.entry.map(t => `<span>Buy: <b>${esc(t)}</b></span>`).join("")}
+          <span>Exit: <b>+${s.rules.exit.take_profit_atr} ATR / −${s.rules.exit.stop_loss_atr} ATR / ${s.rules.exit.max_hold_hours}h</b></span><span>Size: <b>${s.rules.sizing.pct_per_trade}% · max ${s.rules.sizing.max_positions}</b></span></div>
+      </section>
+      <aside class="card c-4" style="grid-row: span 3">
+        <div class="stat inner" style="margin-top:0"><div class="k">Practice return</div><div class="v ${cls(r.return_pct)}">${pct(r.return_pct)}</div><div class="opts"><span>max drawdown ${r.max_drawdown_pct}%</span><span>book $${Math.round(r.equity).toLocaleString()}</span></div></div>
+        <div class="stat inner"><div class="k">Trades · win rate</div><div class="v">${r.trades} · ${r.win_rate == null ? "—" : r.win_rate + "%"}</div><div class="opts"><span>${r.open} open</span><span>${r.closed} closed</span></div></div>
+        <div class="stat inner"><div class="k">Stake · ${big(s.stake.staked)} RYO-CHAN</div><div class="v">${big(s.stake.remaining)}</div>
+          <div class="opts"><span class="badge ${s.stake.breaches ? "bad" : "ok"}">${s.stake.breaches ? `${s.stake.breaches} rule breach${s.stake.breaches > 1 ? "es" : ""}, ${Math.round(s.stake.slashed_share * 100)}% slashed` : `${s.stake.checked} decisions replayed · 0 breaches`}</span></div>
+          <p class="note" style="margin-top:8px">Every decision is replayed from its stored evidence. Each one that breaks the published rules costs 10% of the stake, paid to followers.</p></div>
+        <div class="stat inner"><div class="k">Follow fee · ${big(s.fee.fee)} RYO-CHAN a month</div>
+          <div class="split"><i style="flex:70;background:var(--green)"></i><i style="flex:24;background:var(--violet)"></i><i style="flex:6;background:var(--orange)"></i></div>
+          <div class="legend"><span><i style="background:var(--green)"></i>Shishō ${big(s.fee.shisho)}</span><span><i style="background:var(--violet)"></i>RYO ${big(s.fee.platform_kept)}</span><span><i style="background:var(--orange)"></i>Buyback &amp; burn ${big(s.fee.buyback_and_burn)}</span></div></div>
+        <input class="field" id="handle" placeholder="Your handle, e.g. hanako_88" maxlength="20" aria-label="Your handle">
+        <button class="go" id="follow">Follow in practice</button>
+        <p class="note" id="fnote">Following copies this shishō's practice trades from now on. ${s.followers.length} following.</p>
+      </aside>
+      <section class="card c-8">
+        <div class="head"><h3>Practice record</h3><div class="r"><span class="pill on">Equity, practice USD</span></div></div>
+        <div class="inner" style="padding:14px">${cd ? `<svg viewBox="0 0 760 220" width="100%" height="220" preserveAspectRatio="none"><defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3ef08a" stop-opacity=".35"/><stop offset="1" stop-color="#3ef08a" stop-opacity="0"/></linearGradient></defs><path d="${cd} L760 220 L0 220Z" fill="url(#gf)"/><path d="${cd}" fill="none" stroke="#3ef08a" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>
+          <div class="legend" style="margin-top:6px"><span>${esc(when(r.curve[0][0]))}</span><span style="margin-left:auto">${esc(when(r.curve.at(-1)[0]))} · $${Math.round(curve.at(-1)).toLocaleString()}</span></div>` : `<div class="empty">The curve starts after the next hourly cycle.</div>`}</div>
+      </section>
+      <section class="card c-8">
+        <div class="head"><h3>${esc(title)}</h3><div class="r">${d0?.replay ? `<span class="badge ${d0.replay.identical ? "ok" : "bad"}">${d0.replay.identical ? "✓ replayed from evidence: identical" : "✕ replay differs"}</span>` : ""}</div></div>
+        ${d0 ? `<div class="depth">${(d0.checks || []).map(c => `<div class="drow"><div class="dbar ${c.pass ? "pass" : "fail"}"><i style="width:${barWidth(c)}%"></i><span>${esc(c.text || ruleText(c))}</span></div><span class="v">${esc(c.shown ?? val(c.actual))}</span></div>`).join("") || `<p class="note">${esc(d0.reason || "")}</p>`}</div>
+          ${d0.note?.text ? `<p class="quote">${esc(d0.note.text)}</p>` : ""}
+          <p class="note mono">${esc(when(d0.at))} · evidence ${(d0.evidence || []).map(e => esc(e.slice(0, 8))).join(" · ")}${d0.note?.by && d0.note.by !== "template" ? ` · note by ${esc(d0.note.by)}, every number checked` : ""}</p>` : `<div class="empty">No decisions yet.</div>`}
+      </section>
+      <section class="card c-6">
+        <div class="head"><h3>Open positions</h3></div>
+        ${r.positions.length ? r.positions.map(p => { const span = p.take_profit - p.stop_loss, at = Math.max(0, Math.min(100, ((p.last_price ?? p.entry_price) - p.stop_loss) / span * 100)); const ch = ((p.last_price ?? p.entry_price) / p.entry_price - 1) * 100;
+          return `<div class="inner pos"><div class="l1"><span>${esc(p.symbol)}</span><span class="mono ${cls(ch)}">${pct(ch)}</span></div><div class="rng"><b style="left:${at}%"></b></div><div class="ends"><span>stop ${val(p.stop_loss)}</span><span>entry ${val(p.entry_price)}</span><span>target ${val(p.take_profit)}</span></div></div>`; }).join("") : `<div class="empty">No open positions.</div>`}
+      </section>
+      <section class="card c-6">
+        <div class="head"><h3>Closed trades</h3></div>
+        ${r.closed_trades.length ? r.closed_trades.slice().reverse().map(c => `<div class="inner pos"><div class="l1"><span>${esc(c.symbol)} · ${esc(c.exit_reason.replace("_", " "))}</span><span class="mono ${cls(c.pnl_pct)}">${pct(c.pnl_pct)}</span></div><div class="ends"><span>${esc(when(c.opened_at))}</span><span>${esc(when(c.closed_at))}</span></div></div>`).join("") : `<div class="empty">No closed trades yet: every position is still inside its stop and target.</div>`}
+      </section>
+      <section class="card c-12">
+        <div class="head"><h3>Decision log</h3><div class="r"><span class="pill">Every hour, on RYO data</span></div></div>
+        <div class="inner"><table class="log"><tr><th>When</th><th>Decision</th><th>Coin</th><th>Why</th><th>Replay</th></tr>
+          ${s.decisions.slice(0, 24).map(d => `<tr><td>${esc(when(d.at))}</td><td><span class="kind ${d.kind}">${esc(d.kind.replace("_", " "))}</span></td><td>${esc(d.symbol || "—")}</td><td>${esc(d.note?.text || d.reason || "")}</td><td>${d.replay?.replayable ? (d.replay.identical ? '<span class="badge ok">identical</span>' : '<span class="badge bad">differs</span>') : ""}</td></tr>`).join("")}</table></div>
+      </section>
+    </div>`;
+  $("#follow").onclick = async () => {
+    const b = $("#follow"); b.disabled = true;
+    try { await api("/api/follow", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ handle: $("#handle").value, strategy: s.id }) }); $("#fnote").textContent = `You're following ${s.name} in practice. Its trades from now on count toward your record.`; b.textContent = "Following"; }
+    catch (e) { $("#fnote").textContent = e.message; b.disabled = false; }
+  };
+}
+
+function how() {
+  $("#main").innerHTML = `<div class="top"><a class="back" href="#/">← All shishō</a></div>
+  <section class="banner"><h1>How <em>Shishō</em> works</h1><p>Four steps, and code checks every one.</p><img class="mascot" src="tako-sensei.svg" width="170" height="170" alt=""></section>
+  <div class="cards" style="margin-top:16px">
+    <div class="card"><b style="font-size:16px">1 · A shishō publishes rules</b><p class="note" style="font-size:13px;color:var(--muted)">Which coins to look at, what the market must look like, what a coin must show before a practice buy, and where to take profit or stop. Every rule names a field RYO's tools actually return.</p></div>
+    <div class="card"><b style="font-size:16px">2 · An agent trades them, hourly</b><p class="note" style="font-size:13px;color:var(--muted)">It reads the market once through RYO-CHAN's six research tools, checks each strategy's rules in code, and records the practice trade with every RYO answer it used, fingerprinted. An AI writes the plain note; code checks its numbers.</p></div>
+    <div class="card"><b style="font-size:16px">3 · Anyone can replay it</b><p class="note" style="font-size:13px;color:var(--muted)">Each decision is rebuilt from its stored evidence and the stored version of the rules, with no network and no model. It must come out identical. A decision that doesn't costs the shishō 10% of their stake.</p></div>
+    <div class="card"><b style="font-size:16px">4 · You follow a shishō</b><p class="note" style="font-size:13px;color:var(--muted)">Follow fees are paid in RYO-CHAN: 70% to the shishō, 30% to RYO, and 20% of RYO's share buys back and burns RYO-CHAN, as RYONOMICS sets out. Practice only for now; fees and stakes are simulated until staking launches.</p></div>
+  </div>`;
+}
+
+async function route() {
+  const h = location.hash || "#/";
+  try {
+    if (h.startsWith("#/s/")) await page(decodeURIComponent(h.slice(4)));
+    else if (h === "#/how") how();
+    else await discover();
+  } catch (e) { $("#main").innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+  window.scrollTo(0, 0);
+}
+addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>

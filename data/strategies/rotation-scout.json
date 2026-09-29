@@ -1,0 +1,21 @@
+{
+ "id": "rotation-scout",
+ "name": "Rotation Scout",
+ "creator": { "handle": "tsubame", "demo": true },
+ "thesis": "When money starts rotating out of Bitcoin into altcoins, buy the altcoins with real trading behind the move, not just a thin pump.",
+ "universe": { "source": "scan", "top_n": 10, "direction": "positive" },
+ "market_filter": [
+  { "field": "altseason_phase", "op": "in", "value": ["transition", "altseason"] },
+  { "field": "breadth", "op": ">=", "value": 0.55 }
+ ],
+ "entry": [
+  { "field": "momentum_score", "op": ">=", "value": 0.5 },
+  { "field": "turnover_ratio", "op": ">=", "value": 0.2 },
+  { "field": "change_24h_pct", "op": ">=", "value": 5 },
+  { "field": "change_24h_pct", "op": "<=", "value": 25 }
+ ],
+ "exit": { "take_profit_atr": 1.5, "stop_loss_atr": 1, "max_hold_hours": 48 },
+ "sizing": { "pct_per_trade": 15, "max_positions": 3 },
+ "follow_fee_ryochan": 8000000,
+ "stake_ryochan": 80000000
+}
