@@ -85,6 +85,7 @@ const cls = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
 const big = n => n >= 1e9 ? `${+(n / 1e9).toFixed(1)}B` : n >= 1e6 ? `${+(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${+(n / 1e3).toFixed(1)}K` : String(n);
 const when = s => s ? new Date(s).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
 const val = v => typeof v === "number" ? (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : String(+v.toFixed(v < 1 ? 4 : 2))) : v === true ? "yes" : v === false ? "no" : v == null ? "no data" : String(v);
+let HOSTED = false;
 const COLORS = ["#3ef08a", "#8b6cff", "#e05cc8", "#ff8a5c"];
 const STATE = { enter: "Just bought", exit: "Just sold", stand_aside: "Standing aside", no_entry: "Watching", full: "Fully invested", new: "Starting", no_candidates: "Scan unavailable", unmarked: "Holding" };
 
@@ -111,6 +112,7 @@ function market(m, at) {
 let sortBy = "latest";
 async function discover() {
   const st = await api("/api/state");
+  HOSTED = !!st.hosted;
   market(st.market, st.updated_at);
   const decided = st.shisho.reduce((a, s) => a + s.trades, 0);
   const rank = Object.fromEntries((st.changes.items || []).map((c, i) => [c.strategy, i]));
@@ -156,7 +158,7 @@ const ruleText = c => `${c.field.replace(/_/g, " ")} ${({ ">": ">", ">=": "≥",
 
 async function page(id) {
   const s = await api(`/api/shisho/${encodeURIComponent(id)}`);
-  const st = await api("/api/state"); market(st.market, st.updated_at);
+  const st = await api("/api/state"); HOSTED = !!st.hosted; market(st.market, st.updated_at);
   const r = s.record, d0 = s.decisions.find(d => ["enter", "exit", "stand_aside"].includes(d.kind)) || s.decisions[0];
   const curve = r.curve.map(([, v]) => v);
   const cd = sparkPath(curve, 760, 220, 16);
@@ -211,8 +213,13 @@ async function page(id) {
     </div>`;
   $("#follow").onclick = async () => {
     const b = $("#follow"); b.disabled = true;
-    try { await api("/api/follow", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ handle: $("#handle").value, strategy: s.id }) }); $("#fnote").textContent = `You're following ${s.name} in practice. Its trades from now on count toward your record.`; b.textContent = "Following"; }
-    catch (e) { $("#fnote").textContent = e.message; b.disabled = false; }
+    const h = $("#handle").value.trim().toLowerCase();
+    try {
+      if (!/^[a-z0-9_]{3,20}$/.test(h)) throw new Error("A handle is 3-20 letters, digits or underscores.");
+      if (HOSTED) { try { const f = JSON.parse(localStorage.getItem("shisho-follows") || "[]"); f.push({ handle: h, strategy: s.id, at: new Date().toISOString() }); localStorage.setItem("shisho-follows", JSON.stringify(f)); } catch {} }
+      else await api("/api/follow", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ handle: h, strategy: s.id }) });
+      $("#fnote").textContent = `You're following ${s.name} in practice${HOSTED ? " (saved in this browser)" : ""}. Its trades from now on count toward your record.`; b.textContent = "Following";
+    } catch (e) { $("#fnote").textContent = e.message; b.disabled = false; }
   };
 }
 
@@ -250,7 +257,7 @@ function publishPage() {
         ${r.assumptions.length ? `<p class="note" style="margin-top:12px">Assumed: ${r.assumptions.map(esc).join(" ")}</p>` : ""}
         ${r.errors.length ? `<p class="note" style="color:var(--red)">${r.errors.map(esc).join("; ")}</p>` : ""}
         ${r.right_now ? `<p class="quote">Right now, the market ${r.right_now.pass ? "matches your market rules, so it would look for coins at the next cycle" : "doesn't match your market rules" + (r.right_now.results.filter(c => !c.pass).length ? ": " + r.right_now.results.filter(c => !c.pass).map(c => `${c.text}, but it's ${c.shown}`).join("; ") : "")}.</p>` : ""}
-        <button class="go" id="ppublish" ${r.errors.length ? "disabled" : ""}>Publish as a shishō</button>`;
+        ${r.preview_only ? `<p class="note">This is the public preview. Publishing runs on the agent's machine, so a published strategy starts trading at its next hourly cycle.</p>` : `<button class="go" id="ppublish" ${r.errors.length ? "disabled" : ""}>Publish as a shishō</button>`}`;
       $("#pnote").textContent = "Check the rules. Change your words and try again if anything's off.";
       const pb = $("#ppublish");
       if (pb) pb.onclick = async () => { pb.disabled = true; try { const p = await api("/api/publish", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ strategy: s }) }); location.hash = `#/s/${p.id}`; } catch (e) { $("#pnote").textContent = e.message; pb.disabled = false; } };
