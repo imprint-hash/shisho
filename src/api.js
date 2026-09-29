@@ -23,13 +23,37 @@ function card(s, all, fl) {
     started_at: r.started_at, cycles: r.cycles, spark: week.map(([, v]) => v),
     followers: fl.filter(f => f.strategy === s.id).length,
     fee: feeSplit(s.follow_fee_ryochan), stake: stakeStatus(s),
+    get rules_kept() { return { checked: this.stake.checked, kept: this.stake.checked - this.stake.breaches }; },
     state: last?.kind || "new", last_at: last?.at || null, last_note: last?.note?.text || null,
   };
 }
 
+// What changed in the latest cycle, most important first: money moved (sold,
+// bought, vetoed) before a shishō that changed its stance, before no change.
+const RANK = { exit: 0, enter: 1, vetoed: 2, unmarked: 3, no_candidates: 3, stand_aside: 4, no_entry: 5, full: 6 };
+function changes(all, strategies) {
+  const cycles = [...new Set(all.map(d => d.at))].sort();
+  const now = cycles.at(-1), before = cycles.at(-2);
+  if (!now) return { at: null, items: [], quiet: [] };
+  const byId = Object.fromEntries(strategies.map(s => [s.id, s]));
+  const items = [], quiet = [];
+  for (const s of strategies) {
+    const mine = all.filter(d => d.strategy === s.id && d.at === now);
+    const prev = all.filter(d => d.strategy === s.id && d.at === before).map(d => d.kind);
+    for (const d of mine) {
+      const changed = !prev.includes(d.kind) || ["exit", "enter", "vetoed"].includes(d.kind);
+      const row = { strategy: s.id, name: s.name, kind: d.kind, symbol: d.symbol || null, at: d.at, rank: RANK[d.kind] ?? 7,
+        text: d.note?.text || plainNote(byId[s.id], d), pnl_pct: d.pnl_pct ?? null, council: d.council?.verdict || null, was: prev[0] || null };
+      (changed ? items : quiet).push(row);
+    }
+  }
+  items.sort((a, b) => a.rank - b.rank);
+  return { at: now, items, quiet };
+}
+
 export function state() {
-  const all = decisions(), fl = follows();
-  return { updated_at: latest()?.at || null, market: latest()?.market || null, shisho: loadStrategies().map(s => card(s, all, fl)) };
+  const all = decisions(), fl = follows(), strategies = loadStrategies();
+  return { updated_at: latest()?.at || null, market: latest()?.market || null, changes: changes(all, strategies), shisho: strategies.map(s => card(s, all, fl)) };
 }
 
 export function shisho(id) {

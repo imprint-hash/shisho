@@ -48,6 +48,11 @@
   .rng { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #ff8a5c66, #16161d 40%, #16161d 60%, #3ef08a66); margin: 12px 0 6px; }
   .rng b { position: absolute; top: -5px; width: 3px; height: 18px; border-radius: 2px; background: var(--ink); }
   .ends { display: flex; justify-content: space-between; font: 400 11px "JetBrains Mono"; color: var(--muted); }
+  .changes .chg { display: grid; grid-template-columns: 110px 190px 1fr auto; gap: 12px; align-items: baseline; padding: 11px 12px; border-radius: 12px; color: inherit; text-decoration: none; border-top: 1px solid var(--line); }
+  .changes .chg:hover { background: #ffffff06; }
+  .changes .why { color: var(--muted); font-size: 13px; }
+  @media (max-width: 900px) { .changes .chg { grid-template-columns: 1fr; gap: 4px; } }
+  .kind.vetoed { color: #b8a6ff; }
   .back { color: var(--muted); text-decoration: none; font-size: 13px; }
   .empty { color: var(--dim); padding: 30px; text-align: center; }
   .rules { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
@@ -97,25 +102,26 @@ function spark(vals, color) {
 function market(m, at) {
   if (!m) return;
   $("#mkt").innerHTML = `<span><span class="dot"></span><b>RYO live</b> · ${esc(when(at))}</span>
-    <span>Fear &amp; Greed <b>${esc(m.fear_greed)}</b></span><span>Sentiment <b>${esc((m.sentiment_regime || "").replace(/_/g, " "))}</b></span>
-    <span>Altseason <b>${esc(m.altseason_phase)}</b></span><span>Funding <b>${esc(m.funding_crowding)}</b></span>`;
+    <span>Fear &amp; Greed <b>${esc(m.fear_greed ?? "no data")}</b></span><span>Sentiment <b>${esc((m.sentiment_regime || "no data").replace(/_/g, " "))}</b></span>
+    <span>Altseason <b>${esc(m.altseason_phase ?? "no data")}</b></span><span>Funding <b>${esc(m.funding_crowding ?? "no data")}</b></span>`;
 }
 
 // ── Discover ──
-let sortBy = "return";
+let sortBy = "latest";
 async function discover() {
   const st = await api("/api/state");
   market(st.market, st.updated_at);
   const decided = st.shisho.reduce((a, s) => a + s.trades, 0);
-  const sorters = { return: (a, b) => b.return_pct - a.return_pct, followers: (a, b) => b.followers - a.followers, stake: (a, b) => b.stake.remaining - a.stake.remaining, trades: (a, b) => b.trades - a.trades };
+  const rank = Object.fromEntries((st.changes.items || []).map((c, i) => [c.strategy, i]));
+  const sorters = { latest: (a, b) => (rank[a.id] ?? 99) - (rank[b.id] ?? 99), kept: (a, b) => b.rules_kept.kept - a.rules_kept.kept, followers: (a, b) => b.followers - a.followers, return: (a, b) => b.return_pct - a.return_pct };
   const list = [...st.shisho].sort(sorters[sortBy]);
   const active = list.filter(s => s.state !== "stand_aside"), waiting = list.filter(s => s.state === "stand_aside");
   const cardHtml = (s, i) => `<a class="card" href="#/s/${esc(s.id)}">
       <div class="who"><div class="ava"><img src="tako-sensei.svg" width="40" height="40" alt=""></div><div><b>${esc(s.name)}</b><small>${esc(s.creator.handle)}${s.creator.demo ? '<span class="tag">DEMO</span>' : ""} · ${esc(STATE[s.state] || s.state)}</small></div><span class="copy">Follow</span></div>
       ${s.state === "stand_aside"
-        ? `<div class="roi">STANDING ASIDE<b class="flat" style="font-size:16px">${esc(s.rules.market.join(" · ") || "Market rules not met")}</b></div>`
-        : `<div class="roi">PRACTICE RETURN SINCE ${esc(when(s.started_at).toUpperCase())}<b class="${cls(s.return_pct)}">${pct(s.return_pct)}</b></div>${spark(s.spark, COLORS[i % 4])}`}
-      <div class="stats"><div>Trades<b>${s.trades}</b></div><div>Followers<b>${s.followers}</b></div><div>${s.win_rate == null ? "Stake" : "Win rate"}<b>${s.win_rate == null ? big(s.stake.remaining) : s.win_rate + "%"}</b></div></div>
+        ? `<div class="roi">STANDING ASIDE<span style="display:block;color:var(--ink);font-size:13.5px;line-height:1.5;margin-top:6px;letter-spacing:0">${esc(s.last_note || ("Waiting for: " + s.rules.market.join(" · ")))}</span></div>`
+        : `<div class="roi">RULES KEPT, CHECKED BY REPLAY<b class="up">${s.rules_kept.kept} of ${s.rules_kept.checked}</b></div>${spark(s.spark, COLORS[i % 4])}`}
+      <div class="stats"><div>Trades<b>${s.trades}</b></div><div>Followers<b>${s.followers}</b></div><div>Practice return<b class="${cls(s.return_pct)}">${pct(s.return_pct)}</b></div></div>
       <div class="rule">Buys: <span>${esc(s.rules.entry.slice(0, 3).join(" · "))}</span></div></a>`;
   $("#main").innerHTML = `
     <div class="top"><div class="search">${list.length} shishō · ${decided} practice trades · every one replayable from RYO evidence</div></div>
@@ -124,8 +130,14 @@ async function discover() {
       <p>Traders publish their strategy as rules. An agent runs them every hour on RYO-CHAN's live market data, records each practice trade with the evidence behind it, and anyone can replay any decision.</p>
       <div class="btns"><a class="pill on" href="#/how">How it works</a><a class="pill" href="#/s/${esc(list[0]?.id || "")}">See a shishō</a></div>
       <img class="mascot" src="tako-sensei.svg" width="190" height="190" alt="Tako Sensei, the Shishō mascot"></section>
+    <section class="card changes" style="margin-top:16px">
+      <div class="head"><h3>What changed this hour</h3><div class="r"><span class="pill">${esc(when(st.changes.at))}</span></div></div>
+      ${(st.changes.items || []).length ? st.changes.items.map(c => `<a class="chg" href="#/s/${esc(c.strategy)}"><span class="kind ${c.kind}">${esc(({ exit: "sold", enter: "bought", vetoed: "vetoed", stand_aside: "stepped aside", no_entry: "watching", full: "fully invested", unmarked: "couldn't price", no_candidates: "scan down" })[c.kind] || c.kind)}</span><b>${esc(c.name)}${c.symbol ? " · " + esc(c.symbol) : ""}</b><span class="why">${esc(c.text)}</span>${c.council ? `<span class="badge info">council: ${esc(c.council)}</span>` : ""}</a>`).join("")
+        : `<p class="note">Nothing changed this hour.</p>`}
+      ${(st.changes.quiet || []).length ? `<p class="note">No change: ${st.changes.quiet.map(q => esc(q.name)).join(", ")}.</p>` : ""}
+    </section>
     <div class="sec"><h2>All shishō</h2></div>
-    <div class="filters">${[["return", "Best return"], ["trades", "Most trades"], ["followers", "Followers"], ["stake", "Stake"]].map(([k, l]) => `<button class="pill${k === sortBy ? " on" : ""}" data-sort="${k}">${l}</button>`).join("")}</div>
+    <div class="filters">${[["latest", "Latest activity"], ["kept", "Rules kept"], ["followers", "Followers"], ["return", "Practice return"]].map(([k, l]) => `<button class="pill${k === sortBy ? " on" : ""}" data-sort="${k}">${l}</button>`).join("")}</div>
     <div class="cards">${active.map(cardHtml).join("")}</div>
     ${waiting.length ? `<div class="sec"><h2>Waiting for their moment</h2></div><div class="cards">${waiting.map((s, i) => cardHtml(s, i + active.length)).join("")}</div>` : ""}
     <p class="note">Demo shishō are written by the Shishō team to seed the marketplace; their trades are real practice trades on live RYO data. Fees and stakes are in RYO-CHAN and simulated until RYO-CHAN staking launches.</p>`;

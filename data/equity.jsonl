@@ -8,3 +8,5 @@
 {"strategy":"steady-majors","at":"2026-09-29T20:48:35.082Z","equity":9995.61,"open":2}
 {"strategy":"calm-trend","at":"2026-09-29T21:00:18.282Z","equity":9806.89,"open":3}
 {"strategy":"fear-buyer","at":"2026-09-29T21:00:18.282Z","equity":10000,"open":0}
+{"strategy":"rotation-scout","at":"2026-09-29T21:00:18.282Z","equity":10059.48,"open":2}
+{"strategy":"steady-majors","at":"2026-09-29T21:00:18.282Z","equity":9993.71,"open":2}
