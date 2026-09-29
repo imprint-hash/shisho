@@ -4,3 +4,5 @@ node_modules/
 .vercel/
 data/.run.lock
 data/run.log
+.vercel
+.env*
