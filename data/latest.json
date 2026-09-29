@@ -1,0 +1,21 @@
+{
+ "at": "2026-09-29T20:46:28.543Z",
+ "market": {
+  "fear_greed": 68,
+  "fear_greed_change_7d": -10,
+  "sentiment_regime": "mixed_sentiment",
+  "market_regime": "neutral",
+  "altseason_phase": "transition",
+  "altseason_index": 60,
+  "funding_crowding": "normal",
+  "liquidation_pressure": "normal",
+  "liquidated_side": "longs",
+  "breadth": 0.5435,
+  "btc_dominance": 58.671764758811
+ },
+ "market_evidence": [
+  "8db6cb19e14262a1",
+  "9e959f440c234338"
+ ],
+ "calls": 9
+}

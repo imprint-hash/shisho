@@ -4,7 +4,7 @@
 // writes is checked against the decision's own values; a note with a number
 // that isn't there is thrown away and a plain template note is used instead.
 
-import { describe } from "./strategy.js";
+import { describe, showValue } from "./strategy.js";
 
 const URL = process.env.SHISHO_LLM_URL;
 const KEY = process.env.SHISHO_LLM_KEY;
@@ -16,9 +16,9 @@ const fmt = v => typeof v === "number" ? (Math.abs(v) >= 1000 ? Math.round(v).to
 export function plainNote(s, d) {
   const passed = (d.checks || []).filter(c => c.pass), failed = (d.checks || []).filter(c => !c.pass);
   switch (d.kind) {
-    case "enter": return `Bought ${d.symbol} at $${fmt(d.price)} with ${s.sizing.pct_per_trade}% of the practice book: ${passed.map(c => `${describe(c)} (${fmt(c.actual)})`).join("; ")}. Take-profit $${fmt(d.take_profit)}, stop $${fmt(d.stop_loss)}.`;
+    case "enter": return `Bought ${d.symbol} at $${fmt(d.price)} with ${s.sizing.pct_per_trade}% of the practice book: ${passed.map(c => `${describe(c)} (${showValue(c.field, c.actual)})`).join("; ")}. Take-profit $${fmt(d.take_profit)}, stop $${fmt(d.stop_loss)}.`;
     case "exit": return `Sold ${d.symbol} at $${fmt(d.price)} (${d.reason_code.replace("_", " ")}), ${d.pnl_pct >= 0 ? "+" : ""}${fmt(d.pnl_pct)}% on the practice trade.`;
-    case "stand_aside": return `Standing aside: ${failed.map(c => c.missing ? `${describe(c)} (no data)` : `${describe(c)}, but it is ${fmt(c.actual)}`).join("; ")}.`;
+    case "stand_aside": return `Standing aside: ${failed.map(c => c.missing ? `${describe(c)} (no data)` : `${describe(c)}, but it is ${showValue(c.field, c.actual)}`).join("; ")}.`;
     case "no_entry": return d.reason;
     default: return d.reason || "";
   }
@@ -28,7 +28,8 @@ export function plainNote(s, d) {
 function allowed(d, s) {
   const set = new Set();
   const add = v => { if (typeof v !== "number") return; const a = Math.abs(v); for (const x of [a, +a.toFixed(0), +a.toFixed(1), +a.toFixed(2), +a.toFixed(4)]) set.add(String(x)); };
-  JSON.stringify({ d, sizing: s.sizing, exit: s.exit }).match(/-?\d+(\.\d+)?(e-?\d+)?/g)?.forEach(n => add(Number(n)));
+  const shown = (d.checks || []).map(c => [describe(c), showValue(c.field, c.actual)]);
+  JSON.stringify({ d, shown, sizing: s.sizing, exit: s.exit }).match(/-?\d+(\.\d+)?(e-?\d+)?/g)?.forEach(n => add(Number(n)));
   return set;
 }
 export const unconfirmed = (text, d, s) => {
@@ -42,7 +43,7 @@ export async function llmNote(s, d, marketFacts) {
   const fallback = { text: plainNote(s, d), by: "template" };
   if (!URL || !KEY) return fallback;
   const input = { strategy: { name: s.name, idea: s.thesis }, decision: { kind: d.kind, symbol: d.symbol, price: d.price, take_profit: d.take_profit, stop_loss: d.stop_loss, pnl_pct: d.pnl_pct, reason: d.reason_code || d.reason,
-    checks: (d.checks || []).map(c => ({ rule: describe(c), actual: c.actual, passed: c.pass })) } };
+    checks: (d.checks || []).map(c => ({ rule: describe(c), actual: showValue(c.field, c.actual), passed: c.pass })) } };
   try {
     const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 30000);
     const r = await fetch(URL, { method: "POST", signal: ctl.signal, headers: { Authorization: `Bearer ${KEY}`, "content-type": "application/json" },
