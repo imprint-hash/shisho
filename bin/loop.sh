@@ -13,7 +13,7 @@ while true; do
     if flock -n data/.run.lock node bin/run.mjs >> data/run.log 2>&1; then
       last=$hour
       # Publish the new records: the RYO repo, and the public copy the hosted site builds from.
-      git add data/books data/decisions.jsonl data/equity.jsonl data/evidence data/latest.json data/strategies data/follows.json 2>/dev/null
+      git add data
       if ! git diff --cached --quiet; then
         git -c user.name="imprint-hash" -c user.email="imprint76810@gmail.com" commit -qm "Agent cycle $hour" && { git push -q origin HEAD:main; git push -q public HEAD:main; } >> data/run.log 2>&1
       fi
