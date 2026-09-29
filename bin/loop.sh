@@ -10,7 +10,14 @@ last=""
 while true; do
   hour=$(date -u +%Y-%m-%dT%H)
   if [ "$hour" != "$last" ]; then
-    flock -n data/.run.lock node bin/run.mjs >> data/run.log 2>&1 && last=$hour
+    if flock -n data/.run.lock node bin/run.mjs >> data/run.log 2>&1; then
+      last=$hour
+      # Publish the new records: the RYO repo, and the public copy the hosted site builds from.
+      git add data/books data/decisions.jsonl data/equity.jsonl data/evidence data/latest.json data/strategies data/follows.json 2>/dev/null
+      if ! git diff --cached --quiet; then
+        git -c user.name="imprint-hash" -c user.email="imprint76810@gmail.com" commit -qm "Agent cycle $hour" && { git push -q origin HEAD:main; git push -q public HEAD:main; } >> data/run.log 2>&1
+      fi
+    fi
   fi
   sleep 60
 done
