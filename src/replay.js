@@ -20,12 +20,15 @@ export function replay(d) {
       checks = m.results; outcome = m.pass ? "trade_allowed" : "stand_aside";
       break;
     }
+    case "vetoed":
     case "enter": {
       const m = checkAll(s.market_filter, market());
       const scan = d.scan_evidence ? load(d.scan_evidence) : null;
       const row = scan?.data?.candidates?.find(c => c.symbol === d.symbol) || { symbol: d.symbol };
       const e = checkAll(s.entry, coinFacts(row, load(d.coin_evidence)));
       checks = [...m.results, ...e.results]; outcome = m.pass && e.pass ? "enter" : "no_entry";
+      // The council's verdict is replayed from the stored debate, not asked again.
+      if (outcome === "enter" && d.council) outcome = load(d.council.evidence).council.verdict === "skip" ? "vetoed" : "enter";
       break;
     }
     case "exit": {

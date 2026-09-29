@@ -9,6 +9,9 @@ import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } fr
 import { join } from "node:path";
 import { Cycle, marketFacts, coinFacts, DATA, store } from "./evidence.js";
 import { checkAll } from "./strategy.js";
+import { council } from "./council.js";
+
+const MAX_COUNCILS = 2;   // councils per strategy per cycle: each uses RYO's slower fan-out tools
 
 export const START_BOOK = 10000;          // practice USD every strategy starts with
 const MAX_ANALYSES = Number(process.env.SHISHO_MAX_ANALYSES || 5);   // candidates examined per strategy per cycle
@@ -104,6 +107,7 @@ export async function runStrategy(s, cycle, market, note = null) {
   }
   const held = new Set(book.positions.map(p => p.symbol));
   const looked = [];
+  let councils = 0;
   for (const row of scan.rows.filter(r => !held.has(r.symbol)).slice(0, MAX_ANALYSES)) {
     const { result, id } = await cycle.get("analyze_token", { symbol: row.symbol });
     const f = coinFacts(row, result);
@@ -111,13 +115,21 @@ export async function runStrategy(s, cycle, market, note = null) {
     looked.push({ symbol: row.symbol, pass: e.pass, checks: e.results, evidence: id, status: result.status });
     if (!e.pass) continue;
     if (f.price_usd == null || f.atr_14_pct == null) continue;   // can't size exits without a real ATR
-    const cost = round(book.cash * s.sizing.pct_per_trade / 100, 2);
+    if (councils >= MAX_COUNCILS) break;
+    councils++;
+    // The rules allow it. Now the council weighs it: it can only shrink or veto the trade.
+    const draft = { symbol: row.symbol, checks: [...m.results, ...e.results] };
+    const c = await council(s, draft, cycle, market.facts);
+    const councilRecord = { verdict: c.verdict, size: c.size, reason: c.reason, by: c.by, bull: c.bull, bear: c.bear, evidence: c.evidence, sources: c.sources };
+    const common = { symbol: row.symbol, price: f.price_usd, checks: draft.checks, evidence: [...market.evidence, scan.id, id, ...c.sources, c.evidence].filter(Boolean),
+      market_evidence: market.evidence, scan_evidence: scan.id, coin_evidence: id, council: councilRecord };
+    if (c.size === 0) { out.push(({ ...base, kind: "vetoed", ...common })); continue; }
+    const cost = round(book.cash * s.sizing.pct_per_trade / 100 * c.size, 2);
     if (cost < 1) break;
-    const pos = { symbol: row.symbol, opened_at: cycle.at, entry_price: f.price_usd, atr_at_entry_pct: f.atr_14_pct, units: round(cost / f.price_usd, 10), cost_usd: cost, ...levels(s, f.price_usd, f.atr_14_pct), last_price: f.price_usd, last_marked_at: cycle.at, entry_evidence: id };
+    const pos = { symbol: row.symbol, opened_at: cycle.at, entry_price: f.price_usd, atr_at_entry_pct: f.atr_14_pct, units: round(cost / f.price_usd, 10), cost_usd: cost, ...levels(s, f.price_usd, f.atr_14_pct), last_price: f.price_usd, last_marked_at: cycle.at, entry_evidence: id, council: c.verdict };
     book.cash = round(book.cash - cost, 2);
     book.positions.push(pos);
-    out.push(({ ...base, kind: "enter", symbol: row.symbol, price: f.price_usd, cost_usd: cost, take_profit: pos.take_profit, stop_loss: pos.stop_loss,
-      checks: [...m.results, ...e.results], evidence: [...market.evidence, scan.id, id].filter(Boolean), market_evidence: market.evidence, scan_evidence: scan.id, coin_evidence: id, looked: looked.map(({ checks, ...x }) => x) }));
+    out.push(({ ...base, kind: "enter", ...common, cost_usd: cost, take_profit: pos.take_profit, stop_loss: pos.stop_loss, looked: looked.map(({ checks, ...x }) => x) }));
     return finish();
   }
   out.push(({ ...base, kind: "no_entry", evidence: [...market.evidence, scan.id].filter(Boolean), scan_evidence: scan.id, looked,
@@ -128,7 +140,7 @@ export async function runStrategy(s, cycle, market, note = null) {
     saveBook(book);
     // One point on the equity curve per cycle, marked at the prices RYO gave this cycle.
     appendFileSync(join(DATA, "equity.jsonl"), JSON.stringify({ strategy: s.id, at: cycle.at, equity: equity(book), open: book.positions.length }) + "\n");
-    if (note) for (const d of out) if (["enter", "exit", "stand_aside", "no_entry"].includes(d.kind)) {
+    if (note) for (const d of out) if (["enter", "exit", "stand_aside", "no_entry", "vetoed"].includes(d.kind)) {
       try { d.note = await note(s, d, market.facts); } catch { /* the note is optional; the decision stands without it */ }
     }
     return out.map(record);

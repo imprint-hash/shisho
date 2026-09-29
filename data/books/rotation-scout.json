@@ -1,6 +1,6 @@
 {
  "strategy": "rotation-scout",
- "cash": 8500,
+ "cash": 7225,
  "positions": [
   {
    "symbol": "GRASS",
@@ -11,12 +11,25 @@
    "cost_usd": 1500,
    "take_profit": 0.803016,
    "stop_loss": 0.636548,
-   "last_price": 0.7506192597730926,
-   "last_marked_at": "2026-09-29T20:46:28.543Z",
+   "last_price": 0.749851799588024,
+   "last_marked_at": "2026-09-29T20:48:35.082Z",
    "entry_evidence": "c6a91ca80dc65489"
+  },
+  {
+   "symbol": "SOON",
+   "opened_at": "2026-09-29T20:48:35.082Z",
+   "entry_price": 0.40600872781212094,
+   "atr_at_entry_pct": 7.46,
+   "units": 3140.3265808365,
+   "cost_usd": 1275,
+   "take_profit": 0.451441,
+   "stop_loss": 0.37572,
+   "last_price": 0.40600872781212094,
+   "last_marked_at": "2026-09-29T20:48:35.082Z",
+   "entry_evidence": "8c26877c5879de56"
   }
  ],
  "closed": [],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 3
+ "cycles": 4
 }
