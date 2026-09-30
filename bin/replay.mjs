@@ -12,5 +12,5 @@ for (const d of rows) {
   if (!r.replayable) { skipped++; continue; }
   if (r.identical) ok++; else { bad++; console.log("DIFFERENT:", d.at, d.strategy, d.kind, d.symbol || "", JSON.stringify(r).slice(0, 300)); }
 }
-console.log(`${ok} identical · ${bad} different · ${skipped} not replayable (no evidence to rebuild from)`);
+console.log(`${ok} identical · ${bad} different · ${skipped} with nothing to replay (holding, watching, full)`);
 process.exit(bad ? 1 : 0);

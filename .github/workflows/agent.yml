@@ -1,0 +1,35 @@
+# Shishō's agent, hourly, on GitHub's servers. It runs one cycle over every
+# published strategy on RYO-CHAN's tools and commits the new records, which the
+# public site rebuilds from. Keys are encrypted repository secrets: they never
+# appear in the code, the history or the logs. It only runs on the public copy
+# (imprint-hash/shisho), which is the one that holds the secrets.
+name: agent
+on:
+  schedule: [{ cron: "7 * * * *" }]
+  workflow_dispatch:
+permissions: { contents: write }
+concurrency: { group: agent, cancel-in-progress: false }
+jobs:
+  cycle:
+    if: github.repository == 'imprint-hash/shisho'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Run one cycle
+        env:
+          RYO_API_KEY: ${{ secrets.RYO_API_KEY }}
+          SHISHO_LLM_URL: ${{ secrets.SHISHO_LLM_URL }}
+          SHISHO_LLM_KEY: ${{ secrets.SHISHO_LLM_KEY }}
+          SHISHO_LLM_MODEL: gpt-6-luna
+        # exit 75 means RYO was unreachable: nothing was recorded, and the next hour tries again
+        run: node bin/run.mjs || [ $? -eq 75 ]
+      - name: Commit the records
+        run: |
+          git config user.name "shisho-agent"; git config user.email "shisho-agent@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet && exit 0
+          git commit -qm "Agent cycle $(date -u +%Y-%m-%dT%H)"
+          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done
