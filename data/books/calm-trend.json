@@ -1,6 +1,6 @@
 {
  "strategy": "calm-trend",
- "cash": 5120,
+ "cash": 5982.69,
  "positions": [
   {
    "symbol": "CRV",
@@ -24,10 +24,12 @@
    "cost_usd": 1600,
    "take_profit": 0.00287,
    "stop_loss": 0.002371,
-   "last_price": 0.002408695758283559,
-   "last_marked_at": "2026-09-29T22:00:10.594Z",
+   "last_price": 0.002529899809930124,
+   "last_marked_at": "2026-09-30T12:42:40.382Z",
    "entry_evidence": "f4bc5494f8cd9ce3"
-  },
+  }
+ ],
+ "closed": [
   {
    "symbol": "TIBBIR",
    "opened_at": "2026-09-29T20:46:28.543Z",
@@ -37,12 +39,17 @@
    "cost_usd": 1280,
    "take_profit": 0.506289,
    "stop_loss": 0.387944,
-   "last_price": 0.3921886916652452,
-   "last_marked_at": "2026-09-29T22:00:10.594Z",
-   "entry_evidence": "966aa8546d868788"
+   "last_price": 0.28805129118638917,
+   "last_marked_at": "2026-09-30T12:42:40.382Z",
+   "entry_evidence": "966aa8546d868788",
+   "closed_at": "2026-09-30T12:42:40.382Z",
+   "exit_price": 0.28805129118638917,
+   "exit_reason": "stop_loss",
+   "pnl_usd": -417.31,
+   "pnl_pct": -32.6,
+   "exit_evidence": "4a000803d21e9ac6"
   }
  ],
- "closed": [],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 8
+ "cycles": 9
 }
