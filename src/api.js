@@ -52,9 +52,22 @@ function changes(all, strategies) {
   return { at: now, items, quiet };
 }
 
+// The gap past a stop, worked out from the recorded exit (older records didn't store it).
+const gapOf = d => d.gap ?? (d.kind === "exit" && d.reason_code === "stop_loss" && d.price < d.stop_loss * 0.995 ? { stop: d.stop_loss, filled: d.price } : null);
+
+// The health log: every cycle's calls, retries, rate limits and outages, and every network wait.
+export function health() {
+  const f = join(DATA, "health.jsonl");
+  const rows = existsSync(f) ? readFileSync(f, "utf8").trim().split("\n").filter(Boolean).map(l => JSON.parse(l)) : [];
+  const cycles = rows.filter(r => r.event === "cycle");
+  const sum = k => cycles.reduce((a, r) => a + (r[k] || 0), 0);
+  return { recent: rows.slice(-12).reverse(), totals: { cycles: cycles.length, calls: sum("calls"), retries: sum("retries"), rate_limited: sum("rate_limited"), network_waits: rows.filter(r => r.event === "network_wait").length,
+    tools_down: cycles.reduce((a, r) => a + (r.unavailable?.length || 0), 0), notes_by_template: sum("notes_by_template"), councils_fell_back: sum("councils_fell_back") } };
+}
+
 export function state() {
   const all = decisions(), fl = follows(), strategies = loadStrategies();
-  return { updated_at: latest()?.at || null, market: latest()?.market || null, changes: changes(all, strategies), shisho: strategies.map(s => card(s, all, fl)) };
+  return { updated_at: latest()?.at || null, market: latest()?.market || null, changes: changes(all, strategies), health: health(), shisho: strategies.map(s => card(s, all, fl)) };
 }
 
 export function shisho(id) {
@@ -62,12 +75,13 @@ export function shisho(id) {
   if (!s) return null;
   const all = decisions(), fl = follows();
   const mine = all.filter(d => d.strategy === id);
-  const recent = mine.slice(-40).reverse().map(d => ({ ...d,
+  const recent = mine.slice(-40).reverse().map(d => ({ ...d, gap: gapOf(d),
     checks: (d.checks || []).map(c => ({ ...c, text: describe(c), shown: showValue(c.field, c.actual) })),
     note: d.note || { text: plainNote(s, d), by: "template" },
     replay: ["enter", "exit", "stand_aside"].includes(d.kind) ? replay(d) : null }));
   return { ...card(s, all, fl), record: record(id), decisions: recent,
     followers: fl.filter(f => f.strategy === id).map(f => ({ handle: f.handle, since: f.at, return_pct: followerReturn(f) })),
     tip_split: tipSplit(1_000_000), limits: LIMITS,
+    gaps: mine.filter(d => gapOf(d)).map(d => ({ symbol: d.symbol, at: d.at, ...gapOf(d) })),
     ledger: payments().filter(p => p.strategy === id).slice(-12).reverse().map(({ signature, message, ...p }) => ({ ...p, signature: signature ? signature.slice(0, 12) + "…" : null })) };
 }

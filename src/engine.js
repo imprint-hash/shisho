@@ -81,11 +81,13 @@ export async function runStrategy(s, cycle, market, note = null) {
     const proceeds = pos.units * f.price_usd;
     book.cash = round(book.cash + proceeds, 2);
     book.positions = book.positions.filter(p => p !== pos);
-    const closed = { ...pos, closed_at: cycle.at, exit_price: f.price_usd, exit_reason: why, pnl_usd: round(proceeds - pos.cost_usd, 2), pnl_pct: round((f.price_usd / pos.entry_price - 1) * 100, 2), exit_evidence: id };
+    // A practice stop fills at the first price seen: if the price jumped past it between checks, say so.
+    const gap = why === "stop_loss" && f.price_usd < pos.stop_loss * 0.995 ? { stop: pos.stop_loss, filled: f.price_usd, hours_since_last_mark: round(hoursBetween(pos.last_marked_at, cycle.at), 1) } : null;
+    const closed = { ...pos, closed_at: cycle.at, exit_price: f.price_usd, exit_reason: why, pnl_usd: round(proceeds - pos.cost_usd, 2), pnl_pct: round((f.price_usd / pos.entry_price - 1) * 100, 2), exit_evidence: id, gap };
     book.closed.push(closed);
     out.push(({ ...base, kind: "exit", symbol: pos.symbol, reason_code: why, price: f.price_usd, entry_price: pos.entry_price,
       checks: [{ field: "price_usd", op: why === "take_profit" ? ">=" : "<=", value: why === "take_profit" ? pos.take_profit : pos.stop_loss, actual: f.price_usd, pass: why !== "time_limit" }, ...(why === "time_limit" ? [{ field: "hours_held", op: ">=", value: s.exit.max_hold_hours, actual: round(hoursBetween(pos.opened_at, cycle.at), 1), pass: true }] : [])],
-      pnl_pct: closed.pnl_pct, take_profit: pos.take_profit, stop_loss: pos.stop_loss, opened_at: pos.opened_at, evidence: [id], coin_evidence: id }));
+      pnl_pct: closed.pnl_pct, take_profit: pos.take_profit, stop_loss: pos.stop_loss, opened_at: pos.opened_at, gap, evidence: [id], coin_evidence: id }));
   }
 
   // 2. Is the market one this strategy trades in?

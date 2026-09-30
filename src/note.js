@@ -18,7 +18,7 @@ export function plainNote(s, d) {
   switch (d.kind) {
     case "enter": return `Bought ${d.symbol} at $${fmt(d.price)} with ${s.sizing.pct_per_trade}% of the practice book: ${passed.map(c => `${describe(c)} (${showValue(c.field, c.actual)})`).join("; ")}. Take-profit $${fmt(d.take_profit)}, stop $${fmt(d.stop_loss)}.`;
     case "vetoed": return `The rules allowed ${d.symbol}, but the council said skip: ${d.council?.reason || ""}`;
-    case "exit": return `Sold ${d.symbol} at $${fmt(d.price)} (${d.reason_code.replace("_", " ")}), ${d.pnl_pct >= 0 ? "+" : ""}${fmt(d.pnl_pct)}% on the practice trade.`;
+    case "exit": return `Sold ${d.symbol} at $${fmt(d.price)} (${d.reason_code.replace("_", " ")}), ${d.pnl_pct >= 0 ? "+" : ""}${fmt(d.pnl_pct)}% on the practice trade.${d.gap ? ` The price had jumped past the $${fmt(d.gap.stop)} stop in the ${fmt(d.gap.hours_since_last_mark)} hours since the last check, so the stop filled at the first price seen.` : ""}`;
     case "stand_aside": return `Standing aside: ${failed.map(c => c.missing ? `${describe(c)} (no data)` : `${describe(c)}, but it is ${showValue(c.field, c.actual)}`).join("; ")}.`;
     case "no_entry": return d.reason;
     default: return d.reason || "";

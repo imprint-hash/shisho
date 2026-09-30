@@ -1,1 +1,14 @@
-{"type":"module","private":true}
+{
+ "type": "module",
+ "private": true,
+ "scripts": {
+  "test": "node --test test/*.test.js",
+  "start": "node bin/serve.mjs",
+  "cycle": "node bin/run.mjs",
+  "replay": "node bin/replay.mjs"
+ },
+ "name": "shisho",
+ "engines": {
+  "node": ">=20"
+ }
+}

@@ -164,6 +164,11 @@ async function discover() {
         : `<p class="note">Nothing changed this hour.</p>`}
       ${(st.changes.quiet || []).length ? `<p class="note">No change: ${st.changes.quiet.map(q => esc(q.name)).join(", ")}.</p>` : ""}
     </section>
+    <section class="card" style="margin-top:16px">
+      <div class="head"><h3>System health</h3><div class="r"><span class="pill">Every cycle, logged</span></div></div>
+      <div class="opts">${(h => [["cycles", h.cycles], ["RYO calls", h.calls], ["retried", h.retries], ["rate-limited", h.rate_limited], ["tool outages survived", h.tools_down], ["network waits", h.network_waits], ["notes by template", h.notes_by_template], ["council fell back to rules", h.councils_fell_back]].map(([k, v]) => `<span>${k} <b style="color:var(--ink)">${v}</b></span>`).join(""))(st.health.totals)}</div>
+      <p class="note">When RYO rate-limits, the agent waits and retries; when a tool is down, strategies that need it stand aside and say why; when the network is gone, the cycle waits instead of guessing. Nothing is filled in.</p>
+    </section>
     <div class="sec"><h2>All shishō</h2></div>
     <div class="filters">${[["latest", "Latest activity"], ["kept", "Rules kept"], ["followers", "Followers"], ["return", "Practice return"]].map(([k, l]) => `<button class="pill${k === sortBy ? " on" : ""}" data-sort="${k}">${l}</button>`).join("")}</div>
     <div class="cards">${active.map(cardHtml).join("")}</div>
@@ -232,6 +237,7 @@ async function page(id) {
       <section class="card c-6">
         <div class="head"><h3>Closed trades</h3></div>
         ${r.closed_trades.length ? r.closed_trades.slice().reverse().map(c => `<div class="inner pos"><div class="l1"><span>${esc(c.symbol)} · ${esc(c.exit_reason.replace("_", " "))}</span><span class="mono ${cls(c.pnl_pct)}">${pct(c.pnl_pct)}</span></div><div class="ends"><span>${esc(when(c.opened_at))}</span><span>${esc(when(c.closed_at))}</span></div>
+          ${c.exit_reason === "stop_loss" && c.exit_price < c.stop_loss * 0.995 ? `<p class="note" style="color:var(--orange)">The price jumped past the ${val(c.stop_loss)} stop between checks, so the practice stop filled at the first price seen: ${val(c.exit_price)}. A stop only protects as often as the agent checks.</p>` : ""}
           ${c.pnl_pct > 0 ? `<div class="opts" style="margin-top:10px"><span style="background:none;padding-left:0">Good trade? Tip ${esc(s.creator.handle)}</span>${[1e6, 5e6, 1e7].map(a => `<button class="pill" data-tip="${a}" data-trade="${esc(c.symbol)} ${esc(pct(c.pnl_pct))} on ${esc(when(c.closed_at))}">${big(a)}</button>`).join("")}</div><p class="note tipnote"></p>` : ""}</div>`).join("") : `<div class="empty">No closed trades yet: every position is still inside its stop and target.</div>`}
       </section>
       <section class="card c-12">
