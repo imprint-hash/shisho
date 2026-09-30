@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Shishō</title>
 <link rel="icon" href="tako-sensei.svg">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@900&family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
+<script src="ja.js"></script>
 <style>
   /* the shishō page, from the approved detail sketch */
   .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
@@ -71,6 +72,7 @@
     <a class="nav on" href="#/" id="nav-discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 11.5a3 3 0 1 0 0-6M17.5 14c2.5.4 4 2.4 4 5"/></svg>Discover shishō</a>
     <a class="nav" href="#/publish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Publish a strategy</a>
     <a class="nav" href="#/how"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>How it works</a>
+    <button class="pill" id="lang" style="margin-top:8px" aria-label="Switch language">日本語</button>
     <div class="mkt" id="mkt"><span><span class="dot"></span><b>RYO live</b></span><span>Reading the market…</span></div>
   </aside>
   <main id="main"><div class="empty">Loading…</div></main>
@@ -154,7 +156,7 @@ async function discover() {
   $("#main").innerHTML = `
     <div class="top"><div class="search">${list.length} shishō · ${decided} practice trades · every one replayable from RYO evidence</div></div>
     <section class="banner"><div class="rays"></div>
-      <h1>Learn from a <em>shishō</em>.<br>Follow a strategy you can check.</h1>
+      <h1 data-ja="<em>師匠</em>から学ぼう。<br>確かめられる戦略をフォロー。">Learn from a <em>shishō</em>.<br>Follow a strategy you can check.</h1>
       <p>Traders publish their strategy as rules. An agent runs them every hour on RYO-CHAN's live market data, records each practice trade with the evidence behind it, and anyone can replay any decision.</p>
       <div class="btns"><a class="pill on" href="#/how">How it works</a><a class="pill" href="#/s/${esc(list[0]?.id || "")}">See a shishō</a></div>
       <img class="mascot" src="tako-sensei.svg" width="190" height="190" alt="Tako Sensei, the Shishō mascot"></section>
@@ -281,7 +283,7 @@ function publishPage() {
     "Ride coins with strong momentum and real trading volume when altcoins are outperforming Bitcoin. Take profit at 2 ATR, stop at 1.",
     "Only Bitcoin and Ethereum. Buy when the trend is up, RSI is between 45 and 60, and derivatives aren't crowded."];
   $("#main").innerHTML = `<div class="top"><a class="back" href="#/">← All shishō</a></div>
-    <section class="banner"><h1>Become a <em>shishō</em></h1><p>Describe your strategy in plain words. Shishō turns it into exact rules on RYO's data, you check them, and the agent starts trading them in practice at the next hourly cycle.</p><img class="mascot" src="tako-sensei.svg" width="160" height="160" alt=""></section>
+    <section class="banner"><h1 data-ja="<em>師匠</em>になる">Become a <em>shishō</em></h1><p>Describe your strategy in plain words. Shishō turns it into exact rules on RYO's data, you check them, and the agent starts trading them in practice at the next hourly cycle.</p><img class="mascot" src="tako-sensei.svg" width="160" height="160" alt=""></section>
     <div class="bento" style="margin-top:16px">
       <section class="card c-6">
         <div class="head"><h3>Your strategy</h3></div>
@@ -331,7 +333,7 @@ function publishPage() {
 
 function how() {
   $("#main").innerHTML = `<div class="top"><a class="back" href="#/">← All shishō</a></div>
-  <section class="banner"><h1>How <em>Shishō</em> works</h1><p>Four steps, and code checks every one.</p><img class="mascot" src="tako-sensei.svg" width="170" height="170" alt=""></section>
+  <section class="banner"><h1 data-ja="<em>Shishō</em>の仕組み">How <em>Shishō</em> works</h1><p>Four steps, and code checks every one.</p><img class="mascot" src="tako-sensei.svg" width="170" height="170" alt=""></section>
   <div class="cards" style="margin-top:16px">
     <div class="card"><b style="font-size:16px">1 · A shishō publishes rules</b><p class="note" style="font-size:13px;color:var(--muted)">Which coins to look at, what the market must look like, what a coin must show before a practice buy, and where to take profit or stop. Every rule names a field RYO's tools actually return.</p></div>
     <div class="card"><b style="font-size:16px">2 · An agent trades them, hourly</b><p class="note" style="font-size:13px;color:var(--muted)">It reads the market once through RYO-CHAN's six research tools, checks each strategy's rules in code, and records the practice trade with every RYO answer it used, fingerprinted. An AI writes the plain note; code checks its numbers.</p></div>
@@ -339,6 +341,19 @@ function how() {
     <div class="card"><b style="font-size:16px">4 · You follow a shishō</b><p class="note" style="font-size:13px;color:var(--muted)">Follow fees are paid in RYO-CHAN: 70% to the shishō, 30% to RYO, and 20% of RYO's share buys back and burns RYO-CHAN, as RYONOMICS sets out. Practice only for now; fees and stakes are simulated until staking launches.</p></div>
   </div>`;
 }
+
+// Language: English by default; 日本語 swaps the page text after each render.
+let LANG = (() => { try { return localStorage.getItem("shisho-lang") || "en"; } catch { return "en"; } })();
+function translate() {
+  document.documentElement.lang = LANG === "ja" ? "ja" : "en";
+  $("#lang").textContent = LANG === "ja" ? "English" : "日本語";
+  if (LANG !== "ja") return;
+  document.querySelectorAll("[data-ja]").forEach(e => { e.innerHTML = e.dataset.ja; });
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n; (n = walk.nextNode());) { const k = n.nodeValue.trim(); if (k && k in JA) n.nodeValue = n.nodeValue.replace(k, JA[k]); }
+  document.querySelectorAll("[placeholder]").forEach(e => { if (JA_PH[e.placeholder]) e.placeholder = JA_PH[e.placeholder]; });
+}
+$("#lang").onclick = () => { LANG = LANG === "ja" ? "en" : "ja"; try { localStorage.setItem("shisho-lang", LANG); } catch {} route(); };
 
 async function route() {
   const h = location.hash || "#/";
@@ -349,6 +364,7 @@ async function route() {
     else if (h === "#/publish") publishPage();
     else await discover();
   } catch (e) { $("#main").innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+  translate();
   window.scrollTo(0, 0);
 }
 addEventListener("hashchange", route);

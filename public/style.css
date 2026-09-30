@@ -68,3 +68,5 @@ button.pill { cursor: pointer; font-family: inherit; }
 .banner h1, .banner p { max-width: calc(100% - 240px); }
 .top .search { max-width: none; flex: 0 1 auto; }
 @media (max-width: 1100px) { .banner h1, .banner p { max-width: none; } }
+html[lang="ja"] body { font-family: Manrope, "Noto Sans JP", system-ui, sans-serif; }
+html[lang="ja"] button, html[lang="ja"] .copy, html[lang="ja"] .go, html[lang="ja"] .pill, html[lang="ja"] h1, html[lang="ja"] h2, html[lang="ja"] h3 { font-family: Manrope, "Noto Sans JP", sans-serif; }

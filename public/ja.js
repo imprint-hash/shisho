@@ -1,0 +1,32 @@
+// Japanese for the page text. Applied after each render by exact match, so the
+// data (rules, prices, notes checked against evidence) is never rewritten.
+window.JA = {
+  "Discover shishō": "師匠を探す", "Publish a strategy": "戦略を公開する", "How it works": "仕組み",
+  "RYO live": "RYO ライブ", "Sentiment": "センチメント", "Altseason": "アルトシーズン", "Funding": "資金調達率", "Fear & Greed": "恐怖と強欲",
+  "Learn from a": "", "shishō": "師匠", "Follow a strategy you can check.": "確かめられる戦略をフォローしよう。",
+  "Traders publish their strategy as rules. An agent runs them every hour on RYO-CHAN's live market data, records each practice trade with the evidence behind it, and anyone can replay any decision.": "トレーダーは戦略をルールとして公開します。エージェントが毎時RYO-CHANのライブ市場データでそれを実行し、すべての練習トレードを根拠とともに記録します。どの判断も誰でも再現できます。",
+  "See a shishō": "師匠を見る", "What changed this hour": "この1時間の変化", "Nothing changed this hour.": "この1時間、変化はありません。",
+  "System health": "システムの状態", "Every cycle, logged": "毎サイクル記録",
+  "When RYO rate-limits, the agent waits and retries; when a tool is down, strategies that need it stand aside and say why; when the network is gone, the cycle waits instead of guessing. Nothing is filled in.": "RYOがレート制限をかけると、エージェントは待って再試行します。ツールが止まると、それを必要とする戦略は見送り、理由を示します。ネットワークが切れると、推測せずに待ちます。何も作り話で埋めません。",
+  "All shishō": "すべての師匠", "Waiting for their moment": "好機を待つ師匠",
+  "Latest activity": "最新の動き", "Rules kept": "ルール遵守", "Followers": "フォロワー", "Practice return": "練習リターン",
+  "RULES KEPT, CHECKED BY REPLAY": "ルール遵守（リプレイで検証）", "STANDING ASIDE": "見送り中", "Trades": "取引", "Follow": "フォロー", "Buys:": "買う条件：",
+  "The record starts with its first cycle": "記録は最初のサイクルから始まります",
+  "Demo shishō are written by the Shishō team to seed the marketplace; their trades are real practice trades on live RYO data. Fees and stakes are in RYO-CHAN and simulated until RYO-CHAN staking launches.": "デモの師匠は、マーケットを始めるためにShishōチームが作成したものです。取引はライブRYOデータでの本物の練習トレードです。手数料とステークはRYO-CHAN建てで、RYO-CHANのステーキング開始まではシミュレーションです。",
+  "← All shishō": "← すべての師匠", "Practice record": "練習の記録", "Equity, practice USD": "資産（練習USD）",
+  "The curve starts after the next hourly cycle.": "次の毎時サイクルからグラフが始まります。",
+  "Trades · win rate": "取引・勝率", "Open positions": "保有中のポジション", "No open positions.": "保有中のポジションはありません。",
+  "Closed trades": "決済済みの取引", "No closed trades yet: every position is still inside its stop and target.": "決済済みの取引はまだありません。すべてのポジションが損切りと利確の間にあります。",
+  "Payments": "支払い", "RYO-CHAN · settles at launch": "RYO-CHAN・上場時に決済", "No payments yet. Follow fees and tips appear here.": "まだ支払いはありません。フォロー料とチップはここに表示されます。",
+  "Decision log": "判断の記録", "Every hour, on RYO data": "毎時・RYOデータで", "When": "日時", "Decision": "判断", "Coin": "コイン", "Why": "理由", "Replay": "リプレイ",
+  "identical": "一致", "differs": "不一致", "No decisions yet.": "判断はまだありません。",
+  "Connect Solana wallet": "Solanaウォレットを接続", "Stake as your promise": "約束としてのステーク",
+  "Every decision is replayed from its stored evidence. Each one that breaks the published rules costs 10% of the stake, paid to followers.": "すべての判断は保存された根拠からリプレイされます。公開ルールに反した判断ごとにステークの10%が失われ、フォロワーに支払われます。",
+  "Become a": "", "Your strategy": "あなたの戦略", "Your rules": "あなたのルール", "They'll appear here.": "ここに表示されます。", "Turn it into rules": "ルールに変換する",
+  "Describe your strategy in plain words. Shishō turns it into exact rules on RYO's data, you check them, and the agent starts trading them in practice at the next hourly cycle.": "戦略を普通の言葉で書いてください。ShishōがRYOのデータに基づく正確なルールに変換し、あなたが確認すると、次の毎時サイクルからエージェントが練習トレードを始めます。",
+  "The rules model writes the rules; Shishō's own code checks every field before anything can run.": "ルールはAIが書き、実行前にShishō自身のコードがすべての項目を検証します。",
+  "Stake & publish as a shishō": "ステークして師匠として公開",
+  "Four steps, and code checks every one.": "4つのステップ。すべてコードが検証します。",
+  "1 · A shishō publishes rules": "1・師匠がルールを公開", "2 · An agent trades them, hourly": "2・エージェントが毎時トレード", "3 · Anyone can replay it": "3・誰でもリプレイできる", "4 · You follow a shishō": "4・師匠をフォローする",
+};
+window.JA_PH = { "Your handle, e.g. hanako_88": "ハンドル名（例：hanako_88）", "When…, buy…, sell…": "〜のとき、〜を買い、〜で売る" };

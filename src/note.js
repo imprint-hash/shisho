@@ -30,7 +30,7 @@ function allowed(d, s) {
   const set = new Set();
   const add = v => { if (typeof v !== "number") return; const a = Math.abs(v); for (const x of [a, +a.toFixed(0), +a.toFixed(1), +a.toFixed(2), +a.toFixed(4)]) set.add(String(x)); };
   const shown = (d.checks || []).map(c => [describe(c), showValue(c.field, c.actual)]);
-  JSON.stringify({ d, shown, sizing: s.sizing, exit: s.exit }).match(/-?\d+(\.\d+)?(e-?\d+)?/g)?.forEach(n => add(Number(n)));
+  JSON.stringify({ d, shown, council: d.council?.reason, sizing: s.sizing, exit: s.exit }).match(/-?\d+(\.\d+)?(e-?\d+)?/g)?.forEach(n => add(Number(n)));
   return set;
 }
 export const unconfirmed = (text, d, s) => {
@@ -38,12 +38,13 @@ export const unconfirmed = (text, d, s) => {
   return (text.replace(/(\d),(\d{3})/g, "$1$2").match(/\d+(\.\d+)?/g) || []).filter(n => !ok.has(String(Number(n))));
 };
 
-const SYSTEM = `You explain one practice-trading decision to a beginner, in two short plain sentences. The decision was already made by code from the listed checks; explain why, using the strategy's idea and the checks that mattered. Only use numbers that appear in the input, written the same way. No advice, no predictions, no hype.`;
+const SYSTEM = `You explain one practice-trading decision to a beginner, in two short plain sentences. The decision was already made by code from the listed checks; explain why, using the strategy's idea and the checks that mattered. If a council vetoed or halved the trade, say the rules allowed it and give the council's reason. Only use numbers that appear in the input, written the same way. No advice, no predictions, no hype.`;
 
 export async function llmNote(s, d, marketFacts) {
   const fallback = { text: plainNote(s, d), by: "template" };
   if (!URL || !KEY) return fallback;
   const input = { strategy: { name: s.name, idea: s.thesis }, decision: { kind: d.kind, symbol: d.symbol, price: d.price, take_profit: d.take_profit, stop_loss: d.stop_loss, pnl_pct: d.pnl_pct, reason: d.reason_code || d.reason,
+    council: d.council ? { verdict: d.council.verdict, judge_reason: d.council.reason, bear: (d.council.bear || []).filter(b => !b.struck).map(b => b.text) } : undefined,
     checks: (d.checks || []).map(c => ({ rule: describe(c), actual: showValue(c.field, c.actual), passed: c.pass })) } };
   try {
     const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 30000);
