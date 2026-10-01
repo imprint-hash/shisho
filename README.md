@@ -35,11 +35,11 @@ Strategies that live in someone's head can't be checked. Strategies written down
 
 These are the agent's own records, in `data/`, from 15 hourly cycles on RYO's live tools:
 
-- **73 decisions recorded. 45 replay identically from their stored evidence; 0 differ.** The other 28 (holding, watching, fully invested) have nothing to replay.
-- **The council earned its place.** Before it existed, Calm Trend bought TIBBIR after a +45.16% day; the price fell through the stop while no one was checking and the practice trade closed at −32.6%. Since the council arrived it has refused ten trades the rules allowed, each for a stated reason drawn from RYO's evidence, for example: *"Skip: QNT's RSI of 79.5 and ATR of 12.24% versus Bitcoin's 2.66% show a stretched, much more volatile move after a 316.58% seven-day rise."*
+- **77 decisions recorded. 48 replay identically from their stored evidence; 0 differ.** The other 29 (holding, watching, fully invested) have nothing to replay.
+- **The council earned its place.** Before it existed, Calm Trend bought TIBBIR after a +45.16% day; the price fell through the stop while no one was checking and the practice trade closed at −32.6%. Since the council arrived it has refused ten trades the rules allowed and halved one, each for a stated reason drawn from RYO's evidence, for example: *"Skip: QNT's RSI of 79.5 and ATR of 12.24% versus Bitcoin's 2.66% show a stretched, much more volatile move after a 316.58% seven-day rise."*
 - **Rotation Scout closed SOON at +15.83%** at its take-profit.
 - **RYO's sentiment tool went down mid-run twice.** Strategies that needed it stood aside and said so ("funding and liquidation data were unavailable"); nothing was filled in.
-- **RYO rate-limited the agent 24 times;** every call was retried and answered. The system health card on the site counts these.
+- **RYO rate-limited the agent 27 times;** every call was retried and answered. The system health card on the site counts these.
 
 Short-term profit isn't the point and isn't how the page sorts. The page leads with what changed this hour and whether each shishō kept its own rules.
 
