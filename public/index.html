@@ -79,6 +79,8 @@
 </div>
 
 <script>
+// Everything in its own scope, so browser extensions that add globals can't collide with ours.
+(() => {
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const api = async (p, opts) => { const r = await fetch(p, opts); const j = await r.json(); if (!r.ok) throw new Error(j.error || "Request failed"); return j; };
@@ -103,7 +105,7 @@ function spark(vals, color) {
   return `<svg class="spark" viewBox="0 0 300 78" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${d} L300 78 L0 78Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
-function market(m, at) {
+function shishoMarket(m, at) {
   if (!m) return;
   $("#mkt").innerHTML = `<span><span class="dot"></span><b>RYO live</b> · ${esc(when(at))}</span>
     <span>Fear &amp; Greed <b>${esc(m.fear_greed ?? "no data")}</b></span><span>Sentiment <b>${esc((m.sentiment_regime || "no data").replace(/_/g, " "))}</b></span>
@@ -137,10 +139,10 @@ async function payment(body) {
 
 // ── Discover ──
 let sortBy = "latest";
-async function discover() {
+async function shishoDiscover() {
   const st = await api("/api/state");
   HOSTED = !!st.hosted;
-  market(st.market, st.updated_at);
+  shishoMarket(st.market, st.updated_at);
   const decided = st.shisho.reduce((a, s) => a + s.trades, 0);
   const rank = Object.fromEntries((st.changes.items || []).map((c, i) => [c.strategy, i]));
   const sorters = { latest: (a, b) => (rank[a.id] ?? 99) - (rank[b.id] ?? 99), kept: (a, b) => b.rules_kept.kept - a.rules_kept.kept, followers: (a, b) => b.followers - a.followers, return: (a, b) => b.return_pct - a.return_pct };
@@ -176,7 +178,7 @@ async function discover() {
     <div class="cards">${active.map(cardHtml).join("")}</div>
     ${waiting.length ? `<div class="sec"><h2>Waiting for their moment</h2></div><div class="cards">${waiting.map((s, i) => cardHtml(s, i + active.length)).join("")}</div>` : ""}
     <p class="note">Demo shishō are written by the Shishō team to seed the marketplace; their trades are real practice trades on live RYO data. Fees and stakes are in RYO-CHAN and simulated until RYO-CHAN staking launches.</p>`;
-  document.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => { sortBy = b.dataset.sort; discover(); });
+  document.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => { sortBy = b.dataset.sort; shishoDiscover(); });
 }
 
 // ── One shishō ──
@@ -188,9 +190,9 @@ function barWidth(c) {
 }
 const ruleText = c => `${c.field.replace(/_/g, " ")} ${({ ">": ">", ">=": "≥", "<": "<", "<=": "≤", "==": "is", "!=": "is not", in: "in", not_in: "not in" })[c.op]} ${Array.isArray(c.value) ? c.value.join("/") : val(c.value)}`;
 
-async function page(id) {
+async function shishoPage(id) {
   const s = await api(`/api/shisho/${encodeURIComponent(id)}`);
-  const st = await api("/api/state"); HOSTED = !!st.hosted; market(st.market, st.updated_at);
+  const st = await api("/api/state"); HOSTED = !!st.hosted; shishoMarket(st.market, st.updated_at);
   const r = s.record, d0 = s.decisions.find(d => ["enter", "exit", "stand_aside"].includes(d.kind)) || s.decisions[0];
   const curve = r.curve.map(([, v]) => v);
   const cd = sparkPath(curve, 760, 220, 16);
@@ -288,7 +290,7 @@ async function page(id) {
 }
 
 // ── Publish ──
-function publishPage() {
+function shishoPublish() {
   const ex = ["Buy Solana or Avalanche when the market is fearful and they're oversold. Sell after a 10% bounce or cut at 5%. Never more than 2 at once.",
     "Ride coins with strong momentum and real trading volume when altcoins are outperforming Bitcoin. Take profit at 2 ATR, stop at 1.",
     "Only Bitcoin and Ethereum. Buy when the trend is up, RSI is between 45 and 60, and derivatives aren't crowded."];
@@ -341,7 +343,7 @@ function publishPage() {
   };
 }
 
-function how() {
+function shishoHow() {
   $("#main").innerHTML = `<div class="top"><a class="back" href="#/">← All shishō</a></div>
   <section class="banner"><h1 data-ja="<em>Shishō</em>の仕組み">How <em>Shishō</em> works</h1><p>Four steps, and code checks every one.</p><img class="mascot" src="tako-sensei.svg" width="170" height="170" alt=""></section>
   <div class="cards" style="margin-top:16px">
@@ -354,7 +356,7 @@ function how() {
 
 // Language: English by default; 日本語 swaps the page text after each render.
 let LANG = (() => { try { return localStorage.getItem("shisho-lang") || "en"; } catch { return "en"; } })();
-function translate() {
+function shishoTranslate() {
   document.documentElement.lang = LANG === "ja" ? "ja" : "en";
   $("#lang").textContent = LANG === "ja" ? "English" : "日本語";
   if (LANG !== "ja") return;
@@ -363,22 +365,23 @@ function translate() {
   for (let n; (n = walk.nextNode());) { const k = n.nodeValue.trim(); if (k && k in JA) n.nodeValue = n.nodeValue.replace(k, JA[k]); }
   document.querySelectorAll("[placeholder]").forEach(e => { if (JA_PH[e.placeholder]) e.placeholder = JA_PH[e.placeholder]; });
 }
-$("#lang").onclick = () => { LANG = LANG === "ja" ? "en" : "ja"; try { localStorage.setItem("shisho-lang", LANG); } catch {} route(); };
+$("#lang").onclick = () => { LANG = LANG === "ja" ? "en" : "ja"; try { localStorage.setItem("shisho-lang", LANG); } catch {} shishoRoute(); };
 
-async function route() {
+async function shishoRoute() {
   const h = location.hash || "#/";
   document.querySelectorAll(".side .nav").forEach(a => a.classList.toggle("on", a.getAttribute("href") === (h.startsWith("#/s/") ? "#/" : h)));
   try {
-    if (h.startsWith("#/s/")) await page(decodeURIComponent(h.slice(4)));
-    else if (h === "#/how") how();
-    else if (h === "#/publish") publishPage();
-    else await discover();
+    if (h.startsWith("#/s/")) await shishoPage(decodeURIComponent(h.slice(4)));
+    else if (h === "#/how") shishoHow();
+    else if (h === "#/publish") shishoPublish();
+    else await shishoDiscover();
   } catch (e) { $("#main").innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
-  translate();
+  shishoTranslate();
   window.scrollTo(0, 0);
 }
-addEventListener("hashchange", route);
-route();
+addEventListener("hashchange", shishoRoute);
+shishoRoute();
+})();
 </script>
 </body>
 </html>
