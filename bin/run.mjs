@@ -4,13 +4,19 @@
 import { loadStrategies } from "../src/strategies.js";
 import { runCycle } from "../src/engine.js";
 import { llmNote } from "../src/note.js";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { DATA } from "../src/evidence.js";
 import { reachable, stats } from "../src/ryo.js";
 import { appendFileSync, mkdirSync } from "node:fs";
 
 const health = e => { mkdirSync(DATA, { recursive: true }); appendFileSync(join(DATA, "health.jsonl"), JSON.stringify({ at: new Date().toISOString(), ...e }) + "\n"); };
+
+// At most one cycle an hour: the scheduler asks twice an hour so a skipped slot is caught.
+try {
+  const last = JSON.parse(readFileSync(join(DATA, "latest.json"), "utf8")).at;
+  if (Date.now() - Date.parse(last) < 50 * 60 * 1000 && !process.argv.includes("--force")) { console.log(`Last cycle was at ${last}; next one after 50 minutes.`); process.exit(0); }
+} catch { /* no cycle yet */ }
 
 // No network (a machine that has just woken up): record nothing, let the loop try again in a minute.
 if (!(await reachable())) { health({ event: "network_wait", detail: "RYO unreachable; the cycle waits and retries next minute." }); console.log(new Date().toISOString(), "RYO unreachable, will retry"); process.exit(75); }
