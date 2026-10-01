@@ -70,3 +70,27 @@ button.pill { cursor: pointer; font-family: inherit; }
 @media (max-width: 1100px) { .banner h1, .banner p { max-width: none; } }
 html[lang="ja"] body { font-family: Manrope, "Noto Sans JP", system-ui, sans-serif; }
 html[lang="ja"] button, html[lang="ja"] .copy, html[lang="ja"] .go, html[lang="ja"] .pill, html[lang="ja"] h1, html[lang="ja"] h2, html[lang="ja"] h3 { font-family: Manrope, "Noto Sans JP", sans-serif; }
+
+/* Phones and small tablets */
+.app > main { min-width: 0; }            /* let the main column shrink instead of pushing past the screen */
+@media (max-width: 1100px) {
+  .app { padding: 12px; gap: 12px; }
+  /* the sidebar becomes a compact top bar, so the menu and the language switch stay reachable */
+  .side { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; height: auto; position: static; padding: 10px 12px; }
+  .side .brand { padding: 0 8px 0 0; margin-right: auto; }
+  .side .nav { padding: 8px 10px; font-size: 13px; }
+  .side .nav svg { display: none; }
+  .side #lang { margin-top: 0 !important; padding: 7px 10px; }
+  .side .mkt { order: 10; width: 100%; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .banner { padding: 22px 20px; min-height: 0; }
+  .banner h1 { font-size: 24px; }
+  .top .search { white-space: normal; font-size: 12px; }
+  .card { padding: 14px; border-radius: 18px; }
+  .head { flex-wrap: wrap; }
+  .head .r { margin-left: 0; }
+  .who { flex-wrap: wrap; }
+  .stats > div:nth-child(2), .stats > div:nth-child(3) { text-align: left; }
+  table.log, .log { display: block; overflow-x: auto; white-space: normal; }
+  .log td:nth-child(4) { min-width: 220px; }
+}
+#lang { font-family: "Noto Sans JP", Manrope, sans-serif; }
