@@ -1,22 +1,7 @@
 {
  "strategy": "rotation-scout",
- "cash": 8675.99,
- "positions": [
-  {
-   "symbol": "CAP",
-   "opened_at": "2026-10-01T20:11:49.159Z",
-   "entry_price": 0.08573728065265898,
-   "atr_at_entry_pct": 9.66,
-   "units": 17857.575938321,
-   "cost_usd": 1531.06,
-   "take_profit": 0.098161,
-   "stop_loss": 0.077455,
-   "last_price": 0.08352938584977501,
-   "last_marked_at": "2026-10-01T21:04:06.101Z",
-   "entry_evidence": "acc35f7f5502517f",
-   "council": "take"
-  }
- ],
+ "cash": 10045.48,
+ "positions": [],
  "closed": [
   {
    "symbol": "SOON",
@@ -57,8 +42,33 @@
    "pnl_pct": 0.35,
    "exit_evidence": "ae1f8bf66a6b6784",
    "gap": null
+  },
+  {
+   "symbol": "CAP",
+   "opened_at": "2026-10-01T20:11:49.159Z",
+   "entry_price": 0.08573728065265898,
+   "atr_at_entry_pct": 9.66,
+   "units": 17857.575938321,
+   "cost_usd": 1531.06,
+   "take_profit": 0.098161,
+   "stop_loss": 0.077455,
+   "last_price": 0.07668933273582527,
+   "last_marked_at": "2026-10-01T21:55:17.339Z",
+   "entry_evidence": "acc35f7f5502517f",
+   "council": "take",
+   "closed_at": "2026-10-01T21:55:17.339Z",
+   "exit_price": 0.07668933273582527,
+   "exit_reason": "stop_loss",
+   "pnl_usd": -161.57,
+   "pnl_pct": -10.55,
+   "exit_evidence": "2a1345a2f68d3453",
+   "gap": {
+    "stop": 0.077455,
+    "filled": 0.07668933273582527,
+    "hours_since_last_mark": 0
+   }
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 20
+ "cycles": 21
 }
