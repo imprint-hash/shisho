@@ -21,6 +21,7 @@ Strategies that live in someone's head can't be checked. Strategies written down
 ## Who it's for
 
 - **Creators (shishō):** traders who want to be paid for their method, and are willing to have it checked. They publish rules, stake RYO-CHAN behind them, and earn follow fees and tips.
+- **To become a shishō, you must stake RYO-CHAN.** No stake, no listing. The stake is your promise that the agent will follow your rules exactly; break them and followers are paid from it.
 - **Followers:** RYO's newcomers and retail users who want to learn from someone better, and need to see *why* a trade was made before paying to follow it.
 
 ## What it does
