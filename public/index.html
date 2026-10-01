@@ -54,6 +54,22 @@
   .changes .why { color: var(--muted); font-size: 13px; }
   @media (max-width: 900px) { .changes .chg { grid-template-columns: 1fr; gap: 4px; } }
   .kind.vetoed { color: #b8a6ff; }
+  .idea { color: var(--muted); font-size: 14px; line-height: 1.55; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card.simple .idea { min-height: 2.9em; }
+  .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .nums b { display: block; font: 700 20px Manrope; letter-spacing: -.01em; }
+  .nums span { font-size: 11.5px; color: var(--muted); }
+  .nums.big3 b { font-size: 28px; }
+  .latest { margin-top: 16px; background: var(--inner); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .latest p { margin-top: 6px; font-size: 15px; line-height: 1.55; }
+  .steps3 { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .steps3 span { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line2); background: #ffffff08; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px; }
+  .steps3 b { width: 22px; height: 22px; border-radius: 50%; background: var(--green); color: #04130a; display: grid; place-items: center; font-size: 12px; }
+  details.more { margin-top: 16px; }
+  details.more > summary { cursor: pointer; list-style: none; text-align: center; padding: 14px; border: 1px dashed var(--line2); border-radius: 16px; color: var(--muted); font-weight: 600; }
+  details.more > summary::-webkit-details-marker { display: none; }
+  details.more[open] > summary { color: var(--ink); }
+  .changes .chg { grid-template-columns: 130px 200px 1fr; }
   .back { color: var(--muted); text-decoration: none; font-size: 13px; }
   .empty { color: var(--dim); padding: 30px; text-align: center; }
   .rules { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
@@ -143,42 +159,28 @@ async function shishoDiscover() {
   const st = await api("/api/state");
   HOSTED = !!st.hosted;
   shishoMarket(st.market, st.updated_at);
-  const decided = st.shisho.reduce((a, s) => a + s.trades, 0);
-  const rank = Object.fromEntries((st.changes.items || []).map((c, i) => [c.strategy, i]));
-  const sorters = { latest: (a, b) => (rank[a.id] ?? 99) - (rank[b.id] ?? 99), kept: (a, b) => b.rules_kept.kept - a.rules_kept.kept, followers: (a, b) => b.followers - a.followers, return: (a, b) => b.return_pct - a.return_pct };
-  const list = [...st.shisho].sort(sorters[sortBy]);
-  const active = list.filter(s => s.state !== "stand_aside"), waiting = list.filter(s => s.state === "stand_aside");
-  const cardHtml = (s, i) => `<a class="card" href="#/s/${esc(s.id)}">
-      <div class="who"><div class="ava"><img src="tako-sensei.svg" width="40" height="40" alt=""></div><div><b>${esc(s.name)}</b><small>${esc(s.creator.handle)}${s.creator.demo ? '<span class="tag">DEMO</span>' : ""} · ${esc(STATE[s.state] || s.state)}</small></div><span class="copy">Follow</span></div>
-      ${s.state === "stand_aside"
-        ? `<div class="roi">STANDING ASIDE<span style="display:block;color:var(--ink);font-size:13.5px;line-height:1.5;margin-top:6px;letter-spacing:0">${esc(s.last_note || ("Waiting for: " + s.rules.market.join(" · ")))}</span></div>`
-        : `<div class="roi">RULES KEPT, CHECKED BY REPLAY<b class="up">${s.rules_kept.kept} of ${s.rules_kept.checked}</b></div>${spark(s.spark, COLORS[i % 4])}`}
-      <div class="stats"><div>Trades<b>${s.trades}</b></div><div>Followers<b>${s.followers}</b></div><div>Practice return<b class="${cls(s.return_pct)}">${pct(s.return_pct)}</b></div></div>
-      <div class="rule">Buys: <span>${esc(s.rules.entry.slice(0, 3).join(" · "))}</span></div></a>`;
+  const order = Object.fromEntries((st.changes.items || []).map((c, i) => [c.strategy, i]));
+  const list = [...st.shisho].sort((a, b) => (order[a.id] ?? 99) - (order[b.id] ?? 99));
+  const first = s => { const m = String(s || "").match(/^.*?[.!?](\s|$)/); const x = (m ? m[0] : String(s || "")).trim(); return x.length > 130 ? x.slice(0, 127).trimEnd() + "…" : x; };
+  const VERB = { exit: "sold", enter: "bought", vetoed: "council said no", stand_aside: "waiting", no_entry: "watching", full: "fully invested", unmarked: "couldn't price", no_candidates: "scan down" };
+  const cardHtml = s => `<a class="card simple" href="#/s/${esc(s.id)}">
+      <div class="who"><div class="ava"><img src="tako-sensei.svg" width="40" height="40" alt=""></div><div><b>${esc(s.name)}</b><small>${esc(s.creator.handle)}${s.creator.demo ? '<span class="tag">DEMO</span>' : ""}${s.state === "stand_aside" ? ' · <span style="color:var(--muted)">waiting for its market</span>' : ""}</small></div><span class="copy">Follow</span></div>
+      <p class="idea">${esc(s.thesis)}</p>
+      <div class="nums"><div><b class="up">${s.rules_kept.kept}/${s.rules_kept.checked}</b><span>rules kept</span></div><div><b class="${cls(s.return_pct)}">${pct(s.return_pct)}</b><span>practice return</span></div><div><b>${s.trades}</b><span>trades</span></div></div></a>`;
   $("#main").innerHTML = `
-    <div class="top"><div class="search">${list.length} shishō · ${decided} practice trades · every one replayable from RYO evidence</div></div>
     <section class="banner"><div class="rays"></div>
-      <h1 data-ja="<em>師匠</em>から学ぼう。<br>確かめられる戦略をフォロー。">Learn from a <em>shishō</em>.<br>Follow a strategy you can check.</h1>
-      <p>Traders publish their strategy as rules. An agent runs them every hour on RYO-CHAN's live market data, records each practice trade with the evidence behind it, and anyone can replay any decision.</p>
-      <div class="btns"><a class="pill on" href="#/how">How it works</a><a class="pill" href="#/s/${esc(list[0]?.id || "")}">See a shishō</a></div>
+      <h1 data-ja="<em>師匠</em>を見つけよう。<br>確かめられる戦略をフォロー。">Follow a trader<br>you can <em>check</em>.</h1>
+      <p>Traders publish their strategy as rules. An AI agent follows those rules on RYO-CHAN's live market data, and shows you why it made every trade.</p>
+      <div class="steps3"><span><b>1</b>Pick a shishō</span><span><b>2</b>See why it trades</span><span><b>3</b>Follow it</span></div>
       <img class="mascot" src="tako-sensei.svg" width="190" height="190" alt="Tako Sensei, the Shishō mascot"></section>
     <section class="card changes" style="margin-top:16px">
-      <div class="head"><h3>What changed this hour</h3><div class="r"><span class="pill">${esc(when(st.changes.at))}</span></div></div>
-      ${(st.changes.items || []).length ? st.changes.items.map(c => `<a class="chg" href="#/s/${esc(c.strategy)}"><span class="kind ${c.kind}">${esc(({ exit: "sold", enter: "bought", vetoed: "vetoed", stand_aside: "stepped aside", no_entry: "watching", full: "fully invested", unmarked: "couldn't price", no_candidates: "scan down" })[c.kind] || c.kind)}</span><b>${esc(c.name)}${c.symbol ? " · " + esc(c.symbol) : ""}</b><span class="why">${esc(c.text)}</span>${c.council ? `<span class="badge info">council: ${esc(c.council)}</span>` : ""}</a>`).join("")
+      <div class="head"><h3>This hour</h3><div class="r"><span class="note">${esc(when(st.changes.at))}</span></div></div>
+      ${(st.changes.items || []).length ? st.changes.items.slice(0, 3).map(c => `<a class="chg" href="#/s/${esc(c.strategy)}"><span class="kind ${c.kind}">${esc(VERB[c.kind] || c.kind)}</span><b>${esc(c.name)}${c.symbol ? " · " + esc(c.symbol) : ""}</b><span class="why">${esc(first(c.text))}</span></a>`).join("")
         : `<p class="note">Nothing changed this hour.</p>`}
-      ${(st.changes.quiet || []).length ? `<p class="note">No change: ${st.changes.quiet.map(q => esc(q.name)).join(", ")}.</p>` : ""}
     </section>
-    <section class="card" style="margin-top:16px">
-      <div class="head"><h3>System health</h3><div class="r"><span class="pill">Every cycle, logged</span></div></div>
-      <div class="opts">${(h => [["cycles", h.cycles], ["RYO calls", h.calls], ["retried", h.retries], ["rate-limited", h.rate_limited], ["tool outages survived", h.tools_down], ["network waits", h.network_waits], ["notes by template", h.notes_by_template], ["council fell back to rules", h.councils_fell_back]].map(([k, v]) => `<span>${k} <b style="color:var(--ink)">${v}</b></span>`).join(""))(st.health.totals)}</div>
-      <p class="note">When RYO rate-limits, the agent waits and retries; when a tool is down, strategies that need it stand aside and say why; when the network is gone, the cycle waits instead of guessing. Nothing is filled in.</p>
-    </section>
-    <div class="sec"><h2>All shishō</h2></div>
-    <div class="filters">${[["latest", "Latest activity"], ["kept", "Rules kept"], ["followers", "Followers"], ["return", "Practice return"]].map(([k, l]) => `<button class="pill${k === sortBy ? " on" : ""}" data-sort="${k}">${l}</button>`).join("")}</div>
-    <div class="cards">${active.map(cardHtml).join("")}</div>
-    ${waiting.length ? `<div class="sec"><h2>Waiting for their moment</h2></div><div class="cards">${waiting.map((s, i) => cardHtml(s, i + active.length)).join("")}</div>` : ""}
-    <p class="note">Demo shishō are written by the Shishō team to seed the marketplace; their trades are real practice trades on live RYO data. Fees and stakes are in RYO-CHAN and simulated until RYO-CHAN staking launches.</p>`;
-  document.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => { sortBy = b.dataset.sort; shishoDiscover(); });
+    <div class="sec"><h2>Shishō</h2></div>
+    <div class="cards">${list.map(cardHtml).join("")}</div>
+    <p class="note">DEMO shishō were written by the Shishō team to start the marketplace. Their trades are real practice trades on live RYO data; no real money moves.</p>`;
 }
 
 // ── One shishō ──
@@ -197,73 +199,77 @@ async function shishoPage(id) {
   const curve = r.curve.map(([, v]) => v);
   const cd = sparkPath(curve, 760, 220, 16);
   const title = !d0 ? "No decisions yet" : d0.kind === "enter" ? `Why it bought ${d0.symbol}` : d0.kind === "exit" ? `Why it sold ${d0.symbol}` : d0.kind === "stand_aside" ? "Why it's standing aside" : "Latest check";
+  const latest = s.decisions.find(d => d.note?.text) || d0;
   $("#main").innerHTML = `
     <div class="top"><a class="back" href="#/">← All shishō</a></div>
     <div class="bento">
       <section class="card c-8">
-        <div class="who" style="gap:14px"><img src="tako-sensei.svg" width="64" height="64" alt=""><div><div style="font-size:26px;font-weight:800;letter-spacing:-.01em">${esc(s.name)}</div><small>by ${esc(s.creator.handle)}${s.creator.demo ? '<span class="tag">DEMO</span>' : ""} · started ${esc(when(s.started_at))} · ${s.cycles} cycles</small></div></div>
-        <p style="color:var(--muted);margin-top:12px;max-width:70ch">${esc(s.thesis)}</p>
-        <div class="rules">${s.rules.market.map(t => `<span>Market: <b>${esc(t)}</b></span>`).join("")}${s.rules.entry.map(t => `<span>Buy: <b>${esc(t)}</b></span>`).join("")}
-          <span>Exit: <b>${esc(s.rules.exit_text)}</b></span><span>Size: <b>${s.rules.sizing.pct_per_trade}% · max ${s.rules.sizing.max_positions}</b></span></div>
+        <div class="who" style="gap:14px"><img src="tako-sensei.svg" width="64" height="64" alt=""><div><div style="font-size:26px;font-weight:800;letter-spacing:-.01em">${esc(s.name)}</div><small>by ${esc(s.creator.handle)}${s.creator.demo ? '<span class="tag">DEMO</span>' : ""}</small></div></div>
+        <p class="idea" style="font-size:16px;margin-top:12px">${esc(s.thesis)}</p>
+        <div class="nums big3"><div><b class="up">${s.rules_kept.kept}/${s.rules_kept.checked}</b><span>rules kept, checked by replay</span></div><div><b class="${cls(r.return_pct)}">${pct(r.return_pct)}</b><span>practice return</span></div><div><b>${r.trades}</b><span>trades</span></div></div>
+        ${latest ? `<div class="latest"><div class="label">Latest decision · ${esc(when(latest.at))}</div><p>${esc(latest.note?.text || latest.reason || "")}</p></div>` : ""}
       </section>
-      <aside class="card c-4" style="grid-row: span 3">
-        <div class="stat inner" style="margin-top:0"><div class="k">Practice return</div><div class="v ${cls(r.return_pct)}">${pct(r.return_pct)}</div><div class="opts"><span>max drawdown ${r.max_drawdown_pct}%</span><span>book $${Math.round(r.equity).toLocaleString()}</span></div></div>
-        <div class="stat inner"><div class="k">Trades · win rate</div><div class="v">${r.trades} · ${r.win_rate == null ? "—" : r.win_rate + "%"}</div><div class="opts"><span>${r.open} open</span><span>${r.closed} closed</span></div></div>
-        <div class="stat inner"><div class="k">Stake · ${big(s.stake.staked)} RYO-CHAN</div><div class="v">${big(s.stake.remaining)}</div>
-          <div class="opts"><span class="badge ${s.stake.breaches ? "bad" : "ok"}">${s.stake.breaches ? `${s.stake.breaches} rule breach${s.stake.breaches > 1 ? "es" : ""}, ${Math.round(s.stake.slashed_share * 100)}% slashed` : `${s.stake.checked} decisions replayed · 0 breaches`}</span></div>
-          <p class="note" style="margin-top:8px">Every decision is replayed from its stored evidence. Each one that breaks the published rules costs 10% of the stake, paid to followers.</p></div>
-        <div class="stat inner"><div class="k">Follow fee · ${big(s.fee.fee)} RYO-CHAN a month</div>
-          <div class="split"><i style="flex:70;background:var(--green)"></i><i style="flex:24;background:var(--violet)"></i><i style="flex:6;background:var(--orange)"></i></div>
-          <div class="legend"><span><i style="background:var(--green)"></i>Shishō ${big(s.fee.shisho)}</span><span><i style="background:var(--violet)"></i>RYO ${big(s.fee.platform_kept)}</span><span><i style="background:var(--orange)"></i>Buyback &amp; burn ${big(s.fee.buyback_and_burn)}</span></div></div>
-        <div class="stat inner"><div class="k">Earned by ${esc(s.creator.handle)}</div><div class="v">${big(s.earnings.fees + s.earnings.tips)} <span style="font-size:13px;color:var(--muted);font-weight:500">RYO-CHAN</span></div>
-          <div class="opts"><span>fees ${big(s.earnings.fees)}</span><span>tips ${big(s.earnings.tips)} (${s.earnings.tip_count})</span><span>${s.earnings.paid_followers} paying</span><span>burned ${big(s.earnings.burned)}</span></div></div>
+      <aside class="card c-4">
+        <div class="head"><h3>Follow ${esc(s.name)}</h3></div>
+        <div class="v" style="font-size:24px;font-weight:800">${big(s.fee.fee)} <span style="font-size:13px;color:var(--muted);font-weight:500">RYO-CHAN a month</span></div>
+        <div class="split"><i style="flex:70;background:var(--green)"></i><i style="flex:24;background:var(--violet)"></i><i style="flex:6;background:var(--orange)"></i></div>
+        <p class="note" style="margin-top:4px">70% to ${esc(s.creator.handle)} · 24% to RYO · 6% burned</p>
         <button class="pill" id="wallet" style="width:100%;margin-top:12px">Connect Solana wallet</button>
         <input class="field" id="handle" placeholder="Your handle, e.g. hanako_88" maxlength="20" aria-label="Your handle">
-        <button class="go" id="follow">Pay ${big(s.fee.fee)} RYO-CHAN &amp; follow</button>
-        <p class="note" id="fnote">Your wallet signs the payment; it settles when RYO-CHAN launches on RYO's DEX (17 Nov). Following copies this shishō's practice trades from now on. ${s.followers.length} following.</p>
+        <button class="go" id="follow">Follow</button>
+        <p class="note" id="fnote">Practice only. Your wallet signs; it settles when RYO-CHAN launches (17 Nov).</p>
       </aside>
-      <section class="card c-8">
-        <div class="head"><h3>Practice record</h3><div class="r"><span class="pill on">Equity, practice USD</span></div></div>
-        <div class="inner" style="padding:14px">${cd ? `<svg viewBox="0 0 760 220" width="100%" height="220" preserveAspectRatio="none"><defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3ef08a" stop-opacity=".35"/><stop offset="1" stop-color="#3ef08a" stop-opacity="0"/></linearGradient></defs><path d="${cd} L760 220 L0 220Z" fill="url(#gf)"/><path d="${cd}" fill="none" stroke="#3ef08a" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>
-          <div class="legend" style="margin-top:6px"><span>${esc(when(r.curve[0][0]))}</span><span style="margin-left:auto">${esc(when(r.curve.at(-1)[0]))} · $${Math.round(curve.at(-1)).toLocaleString()}</span></div>` : `<div class="empty">The curve starts after the next hourly cycle.</div>`}</div>
-      </section>
-      <section class="card c-8">
-        <div class="head"><h3>${esc(title)}</h3><div class="r">${d0?.replay ? `<span class="badge ${d0.replay.identical ? "ok" : "bad"}">${d0.replay.identical ? "✓ replayed from evidence: identical" : "✕ replay differs"}</span>` : ""}</div></div>
-        ${d0 ? `<div class="depth">${(d0.checks || []).map(c => `<div class="drow"><div class="dbar ${c.pass ? "pass" : "fail"}"><i style="width:${barWidth(c)}%"></i><span>${esc(c.text || ruleText(c))}</span></div><span class="v">${esc(c.shown ?? val(c.actual))}</span></div>`).join("") || `<p class="note">${esc(d0.reason || "")}</p>`}</div>
-          ${d0.note?.text ? `<p class="quote">${esc(d0.note.text)}</p>` : ""}
-          <p class="note mono">${esc(when(d0.at))} · evidence ${(d0.evidence || []).map(e => esc(e.slice(0, 8))).join(" · ")}${d0.note?.by && d0.note.by !== "template" ? ` · note by ${esc(d0.note.by)}, every number checked` : ""}</p>` : `<div class="empty">No decisions yet.</div>`}
-      </section>
       <section class="card c-12" id="councilcard">
-        ${(cd => cd ? `<div class="head"><h3>The council on ${esc(cd.symbol)}</h3><div class="r"><span class="badge ${cd.council.verdict === "skip" ? "bad" : cd.council.verdict === "half" ? "info" : "ok"}">Judge: ${esc(cd.council.verdict)}</span><span class="pill">${esc(when(cd.at))}</span></div></div>
-          <p class="note" style="margin:-6px 0 14px">The rules allowed this trade. A Bull and a Bear argued from the same RYO evidence; the Judge can only shrink or veto. Points that quote a number the evidence doesn't contain are struck out.</p>
+        ${(cd => cd ? `<div class="head"><h3>Before it trades, a council argues</h3><div class="r"><span class="badge ${cd.council.verdict === "skip" ? "bad" : cd.council.verdict === "half" ? "info" : "ok"}">Judge: ${esc(cd.council.verdict)} ${esc(cd.symbol)}</span></div></div>
           <div class="bento" style="gap:12px">
-            <div class="inner c-6" style="padding:14px"><div class="kind enter" style="margin-bottom:8px">Bull · for</div>${(cd.council.bull || []).map(b => `<p style="margin:6px 0;${b.struck ? "text-decoration:line-through;opacity:.5" : ""}">${esc(b.text)}</p>`).join("") || '<p class="note">No argument.</p>'}</div>
-            <div class="inner c-6" style="padding:14px"><div class="kind unmarked" style="margin-bottom:8px">Bear · against</div>${(cd.council.bear || []).map(b => `<p style="margin:6px 0;${b.struck ? "text-decoration:line-through;opacity:.5" : ""}">${esc(b.text)}</p>`).join("") || '<p class="note">No argument.</p>'}</div>
+            <div class="inner c-6" style="padding:14px"><div class="kind enter" style="margin-bottom:8px">Bull · for</div>${(cd.council.bull || []).slice(0, 2).map(b => `<p style="margin:6px 0;${b.struck ? "text-decoration:line-through;opacity:.5" : ""}">${esc(b.text)}</p>`).join("") || '<p class="note">No argument.</p>'}</div>
+            <div class="inner c-6" style="padding:14px"><div class="kind unmarked" style="margin-bottom:8px">Bear · against</div>${(cd.council.bear || []).slice(0, 2).map(b => `<p style="margin:6px 0;${b.struck ? "text-decoration:line-through;opacity:.5" : ""}">${esc(b.text)}</p>`).join("") || '<p class="note">No argument.</p>'}</div>
           </div>
-          <p class="quote"><b style="color:var(--ink)">Judge:</b> ${esc(cd.council.reason)}</p>
-          <p class="note mono">${esc(cd.council.by)} · debate stored as evidence ${esc((cd.council.evidence || "").slice(0, 8))} · replay ${cd.replay?.identical ? "identical" : "—"}</p>` : `<div class="head"><h3>The council</h3></div><div class="empty">No trade has reached the council yet. It meets whenever the rules allow a trade.</div>`)(s.decisions.find(d => d.council))}
+          <p class="quote"><b style="color:var(--ink)">Judge:</b> ${esc(cd.council.reason)}</p>` : `<div class="head"><h3>The council</h3></div><div class="empty">The council meets whenever the rules allow a trade.</div>`)(s.decisions.find(d => d.council))}
       </section>
-      <section class="card c-6">
+      ${r.closed_trades.length ? `<section class="card c-12"><div class="head"><h3>Finished trades</h3></div><div class="bento" style="gap:12px">${r.closed_trades.slice().reverse().map(c => `<div class="inner pos c-6" style="margin-top:0"><div class="l1"><span>${esc(c.symbol)} · ${esc(c.exit_reason.replace("_", " "))}</span><span class="mono ${cls(c.pnl_pct)}">${pct(c.pnl_pct)}</span></div>
+          ${c.exit_reason === "stop_loss" && c.exit_price < c.stop_loss * 0.995 ? `<p class="note" style="color:var(--orange)">The price fell past the stop between hourly checks, so it sold lower than planned.</p>` : ""}
+          ${c.pnl_pct > 0 ? `<div class="opts" style="margin-top:10px"><span style="background:none;padding-left:0">Good trade? Tip ${esc(s.creator.handle)}</span>${[1e6, 5e6, 1e7].map(a => `<button class="pill" data-tip="${a}" data-trade="${esc(c.symbol)} ${esc(pct(c.pnl_pct))} on ${esc(when(c.closed_at))}">${big(a)}</button>`).join("")}</div><p class="note tipnote"></p>` : ""}</div>`).join("")}</div></section>` : ""}
+    </div>
+    <details class="more">
+      <summary>Show the full record: rules, chart, positions, stake, payments and every decision</summary>
+      <div class="bento" style="margin-top:16px">
+      <section class="card c-12">
+        <div class="head"><h3>The rules</h3></div>
+        <div class="rules" style="margin-top:0">${s.rules.market.map(t => `<span>Market: <b>${esc(t)}</b></span>`).join("")}${s.rules.entry.map(t => `<span>Buy: <b>${esc(t)}</b></span>`).join("")}
+          <span>Exit: <b>${esc(s.rules.exit_text)}</b></span><span>Size: <b>${s.rules.sizing.pct_per_trade}% · max ${s.rules.sizing.max_positions}</b></span></div>
+      </section>
+      <section class="card c-8">
+        <div class="head"><h3>Practice record</h3><div class="r"><span class="note">started ${esc(when(s.started_at))} · ${s.cycles} cycles</span></div></div>
+        <div class="inner" style="padding:14px">${cd ? `<svg viewBox="0 0 760 220" width="100%" height="220" preserveAspectRatio="none"><defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3ef08a" stop-opacity=".35"/><stop offset="1" stop-color="#3ef08a" stop-opacity="0"/></linearGradient></defs><path d="${cd} L760 220 L0 220Z" fill="url(#gf)"/><path d="${cd}" fill="none" stroke="#3ef08a" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>` : `<div class="empty">The curve starts after the next hourly cycle.</div>`}</div>
+      </section>
+      <section class="card c-4">
+        <div class="stat inner" style="margin-top:0"><div class="k">Stake · ${big(s.stake.staked)} RYO-CHAN</div><div class="v">${big(s.stake.remaining)}</div>
+          <div class="opts"><span class="badge ${s.stake.breaches ? "bad" : "ok"}">${s.stake.breaches ? `${s.stake.breaches} breaches, ${Math.round(s.stake.slashed_share * 100)}% slashed` : `${s.stake.checked} replayed · 0 breaches`}</span></div>
+          <p class="note" style="margin-top:8px">Each decision that breaks its own rules costs 10% of the stake, paid to followers.</p></div>
+        <div class="stat inner"><div class="k">Earned by ${esc(s.creator.handle)}</div><div class="v">${big(s.earnings.fees + s.earnings.tips)}</div><div class="opts"><span>fees ${big(s.earnings.fees)}</span><span>tips ${big(s.earnings.tips)}</span><span>burned ${big(s.earnings.burned)}</span></div></div>
+      </section>
+      <section class="card c-8">
+        <div class="head"><h3>${esc(title)}</h3><div class="r">${d0?.replay ? `<span class="badge ${d0.replay.identical ? "ok" : "bad"}">${d0.replay.identical ? "✓ replayed: identical" : "✕ replay differs"}</span>` : ""}</div></div>
+        ${d0 ? `<div class="depth">${(d0.checks || []).map(c => `<div class="drow"><div class="dbar ${c.pass ? "pass" : "fail"}"><i style="width:${barWidth(c)}%"></i><span>${esc(c.text || ruleText(c))}</span></div><span class="v">${esc(c.shown ?? val(c.actual))}</span></div>`).join("") || `<p class="note">${esc(d0.reason || "")}</p>`}</div>
+          <p class="note mono">${esc(when(d0.at))} · evidence ${(d0.evidence || []).map(e => esc(e.slice(0, 8))).join(" · ")}</p>` : `<div class="empty">No decisions yet.</div>`}
+      </section>
+      <section class="card c-4">
         <div class="head"><h3>Open positions</h3></div>
         ${r.positions.length ? r.positions.map(p => { const span = p.take_profit - p.stop_loss, at = Math.max(0, Math.min(100, ((p.last_price ?? p.entry_price) - p.stop_loss) / span * 100)); const ch = ((p.last_price ?? p.entry_price) / p.entry_price - 1) * 100;
-          return `<div class="inner pos"><div class="l1"><span>${esc(p.symbol)}</span><span class="mono ${cls(ch)}">${pct(ch)}</span></div><div class="rng"><b style="left:${at}%"></b></div><div class="ends"><span>stop ${val(p.stop_loss)}</span><span>entry ${val(p.entry_price)}</span><span>target ${val(p.take_profit)}</span></div></div>`; }).join("") : `<div class="empty">No open positions.</div>`}
-      </section>
-      <section class="card c-6">
-        <div class="head"><h3>Closed trades</h3></div>
-        ${r.closed_trades.length ? r.closed_trades.slice().reverse().map(c => `<div class="inner pos"><div class="l1"><span>${esc(c.symbol)} · ${esc(c.exit_reason.replace("_", " "))}</span><span class="mono ${cls(c.pnl_pct)}">${pct(c.pnl_pct)}</span></div><div class="ends"><span>${esc(when(c.opened_at))}</span><span>${esc(when(c.closed_at))}</span></div>
-          ${c.exit_reason === "stop_loss" && c.exit_price < c.stop_loss * 0.995 ? `<p class="note" style="color:var(--orange)">The price jumped past the ${val(c.stop_loss)} stop between checks, so the practice stop filled at the first price seen: ${val(c.exit_price)}. A stop only protects as often as the agent checks.</p>` : ""}
-          ${c.pnl_pct > 0 ? `<div class="opts" style="margin-top:10px"><span style="background:none;padding-left:0">Good trade? Tip ${esc(s.creator.handle)}</span>${[1e6, 5e6, 1e7].map(a => `<button class="pill" data-tip="${a}" data-trade="${esc(c.symbol)} ${esc(pct(c.pnl_pct))} on ${esc(when(c.closed_at))}">${big(a)}</button>`).join("")}</div><p class="note tipnote"></p>` : ""}</div>`).join("") : `<div class="empty">No closed trades yet: every position is still inside its stop and target.</div>`}
+          return `<div class="inner pos"><div class="l1"><span>${esc(p.symbol)}</span><span class="mono ${cls(ch)}">${pct(ch)}</span></div><div class="rng"><b style="left:${at}%"></b></div><div class="ends"><span>stop ${val(p.stop_loss)}</span><span>target ${val(p.take_profit)}</span></div></div>`; }).join("") : `<div class="empty">No open positions.</div>`}
       </section>
       <section class="card c-12">
-        <div class="head"><h3>Payments</h3><div class="r"><span class="pill">RYO-CHAN · settles at launch</span></div></div>
-        ${s.ledger.length ? `<div class="inner"><table class="log"><tr><th>When</th><th>Type</th><th>From</th><th>Amount</th><th>To ${esc(s.creator.handle)}</th><th>Burned</th><th>Signed</th></tr>${s.ledger.map(p => `<tr><td>${esc(when(p.at))}</td><td><span class="kind ${p.type === "tip" ? "exit" : "enter"}">${esc(p.type)}</span></td><td>${esc(p.payer)}${p.wallet ? " · " + esc(short(p.wallet)) : ""}</td><td class="mono">${big(p.amount)}</td><td class="mono">${p.split?.shisho != null ? big(p.split.shisho) : p.type === "stake" ? "locked" : "—"}</td><td class="mono">${p.split?.buyback_and_burn != null ? big(p.split.buyback_and_burn) : "—"}</td><td>${p.signed ? '<span class="badge ok">wallet</span>' : '<span class="badge info">handle</span>'}</td></tr>`).join("")}</table></div>` : `<div class="empty">No payments yet. Follow fees and tips appear here.</div>`}
+        <div class="head"><h3>Payments</h3></div>
+        ${s.ledger.length ? `<div class="inner"><table class="log"><tr><th>When</th><th>Type</th><th>From</th><th>Amount</th><th>To ${esc(s.creator.handle)}</th><th>Burned</th><th>Signed</th></tr>${s.ledger.map(p => `<tr><td>${esc(when(p.at))}</td><td><span class="kind ${p.type === "tip" ? "exit" : "enter"}">${esc(p.type)}</span></td><td>${esc(p.payer)}${p.wallet ? " · " + esc(short(p.wallet)) : ""}</td><td class="mono">${big(p.amount)}</td><td class="mono">${p.split?.shisho != null ? big(p.split.shisho) : p.type === "stake" ? "locked" : "—"}</td><td class="mono">${p.split?.buyback_and_burn != null ? big(p.split.buyback_and_burn) : "—"}</td><td>${p.signed ? '<span class="badge ok">wallet</span>' : '<span class="badge info">handle</span>'}</td></tr>`).join("")}</table></div>` : `<div class="empty">No payments yet.</div>`}
       </section>
       <section class="card c-12">
-        <div class="head"><h3>Decision log</h3><div class="r"><span class="pill">Every hour, on RYO data</span></div></div>
+        <div class="head"><h3>Every decision</h3><div class="r"><span class="note">hourly, on RYO data</span></div></div>
         <div class="inner"><table class="log"><tr><th>When</th><th>Decision</th><th>Coin</th><th>Why</th><th>Replay</th></tr>
           ${s.decisions.slice(0, 24).map(d => `<tr><td>${esc(when(d.at))}</td><td><span class="kind ${d.kind}">${esc(d.kind.replace("_", " "))}</span></td><td>${esc(d.symbol || "—")}</td><td>${esc(d.note?.text || d.reason || "")}</td><td>${d.replay?.replayable ? (d.replay.identical ? '<span class="badge ok">identical</span>' : '<span class="badge bad">differs</span>') : ""}</td></tr>`).join("")}</table></div>
       </section>
-    </div>`;
+      </div>
+    </details>`;
   $("#wallet").onclick = async () => { try { const w = await connectWallet(); $("#wallet").textContent = "Wallet " + short(w); } catch (e) { $("#fnote").textContent = e.message; } };
   $("#follow").onclick = async () => {
     const b = $("#follow"); b.disabled = true;
@@ -343,7 +349,8 @@ function shishoPublish() {
   };
 }
 
-function shishoHow() {
+async function shishoHow() {
+  let h = null; try { h = (await api("/api/state")).health.totals; } catch {}
   $("#main").innerHTML = `<div class="top"><a class="back" href="#/">← All shishō</a></div>
   <section class="banner"><h1 data-ja="<em>Shishō</em>の仕組み">How <em>Shishō</em> works</h1><p>Four steps, and code checks every one.</p><img class="mascot" src="tako-sensei.svg" width="170" height="170" alt=""></section>
   <div class="cards" style="margin-top:16px">
@@ -351,7 +358,10 @@ function shishoHow() {
     <div class="card"><b style="font-size:16px">2 · An agent trades them, hourly</b><p class="note" style="font-size:13px;color:var(--muted)">It reads the market once through RYO-CHAN's six research tools, checks each strategy's rules in code, and records the practice trade with every RYO answer it used, fingerprinted. An AI writes the plain note; code checks its numbers.</p></div>
     <div class="card"><b style="font-size:16px">3 · Anyone can replay it</b><p class="note" style="font-size:13px;color:var(--muted)">Each decision is rebuilt from its stored evidence and the stored version of the rules, with no network and no model. It must come out identical. A decision that doesn't costs the shishō 10% of their stake.</p></div>
     <div class="card"><b style="font-size:16px">4 · You follow a shishō</b><p class="note" style="font-size:13px;color:var(--muted)">Follow fees are paid in RYO-CHAN: 70% to the shishō, 30% to RYO, and 20% of RYO's share buys back and burns RYO-CHAN, as RYONOMICS sets out. Practice only for now; fees and stakes are simulated until staking launches.</p></div>
-  </div>`;
+  </div>
+  ${h ? `<section class="card" style="margin-top:16px"><div class="head"><h3>System health, logged every cycle</h3></div>
+    <div class="opts">${[["cycles", h.cycles], ["RYO calls", h.calls], ["retried", h.retries], ["rate-limited", h.rate_limited], ["tool outages survived", h.tools_down], ["network waits", h.network_waits], ["notes by template", h.notes_by_template], ["council fell back to rules", h.councils_fell_back]].map(([k, v]) => `<span>${k} <b style="color:var(--ink)">${v}</b></span>`).join("")}</div>
+    <p class="note">When RYO rate-limits, the agent waits and retries; when a tool is down, strategies that need it stand aside and say why; when the network is gone, the cycle waits. Nothing is filled in.</p></section>` : ""}`;
 }
 
 // Language: English by default; 日本語 swaps the page text after each render.
@@ -372,7 +382,7 @@ async function shishoRoute() {
   document.querySelectorAll(".side .nav").forEach(a => a.classList.toggle("on", a.getAttribute("href") === (h.startsWith("#/s/") ? "#/" : h)));
   try {
     if (h.startsWith("#/s/")) await shishoPage(decodeURIComponent(h.slice(4)));
-    else if (h === "#/how") shishoHow();
+    else if (h === "#/how") await shishoHow();
     else if (h === "#/publish") shishoPublish();
     else await shishoDiscover();
   } catch (e) { $("#main").innerHTML = `<div class="empty">${esc(e.message)}</div>`; }

@@ -29,5 +29,7 @@ window.JA = {
   "Four steps, and code checks every one.": "4つのステップ。すべてコードが検証します。",
   "1 · A shishō publishes rules": "1・師匠がルールを公開", "2 · An agent trades them, hourly": "2・エージェントが毎時トレード", "3 · Anyone can replay it": "3・誰でもリプレイできる", "4 · You follow a shishō": "4・師匠をフォローする",
   "Bull · for": "強気・賛成", "Bear · against": "弱気・反対", "The council": "評議会",
+  "This hour": "この1時間", "Pick a shishō": "師匠を選ぶ", "See why it trades": "取引の理由を見る", "Follow it": "フォローする", "rules kept": "ルール遵守", "practice return": "練習リターン", "trades": "取引", "Before it trades, a council argues": "取引の前に評議会が議論します", "Finished trades": "決済済みの取引", "The rules": "ルール", "Every decision": "すべての判断",
+  "Traders publish their strategy as rules. An AI agent follows those rules on RYO-CHAN's live market data, and shows you why it made every trade.": "トレーダーは戦略をルールとして公開します。AIエージェントがRYO-CHANのライブ市場データでそのルールに従い、すべての取引の理由を示します。",
 };
 window.JA_PH = { "Your handle, e.g. hanako_88": "ハンドル名（例：hanako_88）", "When…, buy…, sell…": "〜のとき、〜を買い、〜で売る" };
