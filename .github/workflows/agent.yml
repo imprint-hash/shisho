@@ -8,29 +8,40 @@ on:
   # GitHub delays or skips some scheduled runs on busy hours; asking twice an hour keeps it near hourly.
   schedule: [{ cron: "7,37 * * * *" }]
   workflow_dispatch:
-permissions: { contents: write }
+permissions: { contents: write, actions: write }
 concurrency: { group: agent, cancel-in-progress: false }
 jobs:
   cycle:
     if: github.repository == 'imprint-hash/shisho'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # GitHub fires schedules hours late, so each run stays on watch for about five and a half
+    # hours and then starts the next one itself. The 50-minute guard in run.mjs keeps it hourly.
+    timeout-minutes: 355
+    permissions: { contents: write, actions: write }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - name: Run one cycle
+      - name: Watch, one cycle an hour
         env:
           RYO_API_KEY: ${{ secrets.RYO_API_KEY }}
           SHISHO_LLM_URL: ${{ secrets.SHISHO_LLM_URL }}
           SHISHO_LLM_KEY: ${{ secrets.SHISHO_LLM_KEY }}
           SHISHO_LLM_MODEL: gpt-6-luna
-        # exit 75 means RYO was unreachable: nothing was recorded, and the next hour tries again
-        run: node bin/run.mjs || [ $? -eq 75 ]
-      - name: Commit the records
         run: |
           git config user.name "shisho-agent"; git config user.email "shisho-agent@users.noreply.github.com"
-          git add data
-          git diff --cached --quiet && exit 0
-          git commit -qm "Agent cycle $(date -u +%Y-%m-%dT%H)"
-          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done
+          until [ $SECONDS -gt 19800 ]; do
+            git pull -q --rebase origin main || true
+            # exit 75 means RYO was unreachable: nothing was recorded, and the next try comes soon
+            node bin/run.mjs || echo "cycle exited $?"
+            git add data
+            if ! git diff --cached --quiet; then
+              git commit -qm "Agent cycle $(date -u +%Y-%m-%dT%H)"
+              for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done
+            fi
+            sleep 600
+          done
+      - name: Hand over to the next run
+        if: always()
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh workflow run agent.yml --ref main -R "$GITHUB_REPOSITORY"
