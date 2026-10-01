@@ -6,6 +6,7 @@ A strategy marketplace for RYO-CHAN. Traders publish their strategy as exact rul
 
 RYO-CHAN Hackathon 2026 · **Track 1 · Autonomous Agents** and **Track 2 · Dashboards & Interfaces**
 
+- **Demo video (87 s):** https://drive.google.com/file/d/1DfMw1wP-kQ9-2EIOKxjDJiK5EOtfAOTh/view?usp=sharing
 - **Live:** https://shisho-rho.vercel.app (rebuilt from the agent's records every hour)
 - **Public mirror of this repo:** https://github.com/imprint-hash/shisho
 - **Practice only.** Shishō never places a real trade and never moves tokens. Payments are wallet-signed promises that settle when RYO-CHAN launches on RYO's DEX.
