@@ -6,7 +6,7 @@ import { MARKET_FIELDS, COIN_FIELDS, OPS, validate, describe, checkAll } from ".
 
 const URL = process.env.SHISHO_LLM_URL;
 const KEY = process.env.SHISHO_LLM_KEY;
-const MODEL = process.env.SHISHO_LLM_MODEL || "gpt-6-luna";
+const MODEL = process.env.SHISHO_LLM_MODEL || "openai/gpt-oss-120b";
 
 const cond = fields => ({ type: "object", additionalProperties: false, required: ["field", "op", "value"], properties: {
   field: { type: "string", enum: Object.keys(fields) }, op: { type: "string", enum: OPS },

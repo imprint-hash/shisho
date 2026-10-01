@@ -27,7 +27,7 @@ jobs:
           RYO_API_KEY: ${{ secrets.RYO_API_KEY }}
           SHISHO_LLM_URL: ${{ secrets.SHISHO_LLM_URL }}
           SHISHO_LLM_KEY: ${{ secrets.SHISHO_LLM_KEY }}
-          SHISHO_LLM_MODEL: gpt-6-luna
+          SHISHO_LLM_MODEL: openai/gpt-oss-120b
         run: |
           git config user.name "shisho-agent"; git config user.email "shisho-agent@users.noreply.github.com"
           until [ $SECONDS -gt 19800 ]; do

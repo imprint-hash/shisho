@@ -16,7 +16,7 @@ import { showValue, describe } from "./strategy.js";
 
 const URL = process.env.SHISHO_LLM_URL;
 const KEY = process.env.SHISHO_LLM_KEY;
-const MODEL = process.env.SHISHO_LLM_MODEL || "gpt-6-luna";
+const MODEL = process.env.SHISHO_LLM_MODEL || "openai/gpt-oss-120b";
 
 export const SIZE = { take: 1, half: 0.5, skip: 0 };
 

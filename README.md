@@ -135,7 +135,7 @@ The hourly agent runs on GitHub Actions in the public mirror (`.github/workflows
 No npm packages. Everything else used:
 
 - **RYO-CHAN MCP research tools** (`app-ryochan.com/api/mcp`), the data foundation.
-- **An OpenAI-compatible LLM endpoint** for the council, the notes and publishing: we used `gpt-6-luna` through OpenServ's SERV Reasoning API. Any compatible endpoint works.
+- **An OpenAI-compatible LLM endpoint** for the council, the notes and publishing: we use `openai/gpt-oss-120b` on Groq. Records before 1 Oct 2026 (evening) were written by `gpt-6-luna` through OpenServ's SERV Reasoning API; each note and debate stores the model that wrote it. Any compatible endpoint works.
 - **Fonts:** Manrope, JetBrains Mono, Noto Sans JP and Noto Serif JP from Google Fonts.
 - **Phantom wallet** browser API (`window.phantom.solana`) for signing payment promises.
 - **GitHub Actions** (`actions/checkout`, `actions/setup-node`) for the hourly agent, and **Vercel** for hosting the public site.

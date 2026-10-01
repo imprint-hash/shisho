@@ -8,7 +8,7 @@ import { describe, showValue } from "./strategy.js";
 
 const URL = process.env.SHISHO_LLM_URL;
 const KEY = process.env.SHISHO_LLM_KEY;
-const MODEL = process.env.SHISHO_LLM_MODEL || "gpt-6-luna";
+const MODEL = process.env.SHISHO_LLM_MODEL || "openai/gpt-oss-120b";
 
 const fmt = v => typeof v === "number" ? (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en-US") : String(+v.toFixed(4))) : String(v);
 
