@@ -366,14 +366,21 @@ async function shishoHow() {
 
 // Language: English by default; 日本語 swaps the page text after each render.
 let LANG = (() => { try { return localStorage.getItem("shisho-lang") || "en"; } catch { return "en"; } })();
+// Every swapped text remembers its English, so switching back restores the whole page,
+// including parts that aren't redrawn (the sidebar).
+const ORIGINAL = [];
 function shishoTranslate() {
   document.documentElement.lang = LANG === "ja" ? "ja" : "en";
-  $("#lang").textContent = LANG === "ja" ? "English" : "日本語";
-  if (LANG !== "ja") return;
+  if (LANG !== "ja") {
+    for (const [node, text] of ORIGINAL.splice(0)) if (node.isConnected) node.nodeValue = text;
+    $("#lang").textContent = "日本語";
+    return;
+  }
   document.querySelectorAll("[data-ja]").forEach(e => { e.innerHTML = e.dataset.ja; });
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  for (let n; (n = walk.nextNode());) { const k = n.nodeValue.trim(); if (k && k in JA) n.nodeValue = n.nodeValue.replace(k, JA[k]); }
+  for (let n; (n = walk.nextNode());) { const k = n.nodeValue.trim(); if (k && k in JA) { ORIGINAL.push([n, n.nodeValue]); n.nodeValue = n.nodeValue.replace(k, JA[k]); } }
   document.querySelectorAll("[placeholder]").forEach(e => { if (JA_PH[e.placeholder]) e.placeholder = JA_PH[e.placeholder]; });
+  $("#lang").textContent = "English";
 }
 $("#lang").onclick = () => { LANG = LANG === "ja" ? "en" : "ja"; try { localStorage.setItem("shisho-lang", LANG); } catch {} shishoRoute(); };
 
