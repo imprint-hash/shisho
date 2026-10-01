@@ -5,7 +5,8 @@
 # (imprint-hash/shisho), which is the one that holds the secrets.
 name: agent
 on:
-  schedule: [{ cron: "7 * * * *" }]
+  # GitHub delays or skips some scheduled runs on busy hours; asking twice an hour keeps it near hourly.
+  schedule: [{ cron: "7,37 * * * *" }]
   workflow_dispatch:
 permissions: { contents: write }
 concurrency: { group: agent, cancel-in-progress: false }
