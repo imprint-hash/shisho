@@ -1,7 +1,22 @@
 {
  "strategy": "rotation-scout",
- "cash": 10207.05,
- "positions": [],
+ "cash": 8675.99,
+ "positions": [
+  {
+   "symbol": "CAP",
+   "opened_at": "2026-10-01T20:11:49.159Z",
+   "entry_price": 0.08573728065265898,
+   "atr_at_entry_pct": 9.66,
+   "units": 17857.575938321,
+   "cost_usd": 1531.06,
+   "take_profit": 0.098161,
+   "stop_loss": 0.077455,
+   "last_price": 0.08573728065265898,
+   "last_marked_at": "2026-10-01T20:11:49.159Z",
+   "entry_evidence": "acc35f7f5502517f",
+   "council": "take"
+  }
+ ],
  "closed": [
   {
    "symbol": "SOON",
@@ -45,5 +60,5 @@
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 18
+ "cycles": 19
 }
