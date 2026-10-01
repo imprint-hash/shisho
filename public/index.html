@@ -231,6 +231,16 @@ async function page(id) {
           ${d0.note?.text ? `<p class="quote">${esc(d0.note.text)}</p>` : ""}
           <p class="note mono">${esc(when(d0.at))} · evidence ${(d0.evidence || []).map(e => esc(e.slice(0, 8))).join(" · ")}${d0.note?.by && d0.note.by !== "template" ? ` · note by ${esc(d0.note.by)}, every number checked` : ""}</p>` : `<div class="empty">No decisions yet.</div>`}
       </section>
+      <section class="card c-12" id="councilcard">
+        ${(cd => cd ? `<div class="head"><h3>The council on ${esc(cd.symbol)}</h3><div class="r"><span class="badge ${cd.council.verdict === "skip" ? "bad" : cd.council.verdict === "half" ? "info" : "ok"}">Judge: ${esc(cd.council.verdict)}</span><span class="pill">${esc(when(cd.at))}</span></div></div>
+          <p class="note" style="margin:-6px 0 14px">The rules allowed this trade. A Bull and a Bear argued from the same RYO evidence; the Judge can only shrink or veto. Points that quote a number the evidence doesn't contain are struck out.</p>
+          <div class="bento" style="gap:12px">
+            <div class="inner c-6" style="padding:14px"><div class="kind enter" style="margin-bottom:8px">Bull · for</div>${(cd.council.bull || []).map(b => `<p style="margin:6px 0;${b.struck ? "text-decoration:line-through;opacity:.5" : ""}">${esc(b.text)}</p>`).join("") || '<p class="note">No argument.</p>'}</div>
+            <div class="inner c-6" style="padding:14px"><div class="kind unmarked" style="margin-bottom:8px">Bear · against</div>${(cd.council.bear || []).map(b => `<p style="margin:6px 0;${b.struck ? "text-decoration:line-through;opacity:.5" : ""}">${esc(b.text)}</p>`).join("") || '<p class="note">No argument.</p>'}</div>
+          </div>
+          <p class="quote"><b style="color:var(--ink)">Judge:</b> ${esc(cd.council.reason)}</p>
+          <p class="note mono">${esc(cd.council.by)} · debate stored as evidence ${esc((cd.council.evidence || "").slice(0, 8))} · replay ${cd.replay?.identical ? "identical" : "—"}</p>` : `<div class="head"><h3>The council</h3></div><div class="empty">No trade has reached the council yet. It meets whenever the rules allow a trade.</div>`)(s.decisions.find(d => d.council))}
+      </section>
       <section class="card c-6">
         <div class="head"><h3>Open positions</h3></div>
         ${r.positions.length ? r.positions.map(p => { const span = p.take_profit - p.stop_loss, at = Math.max(0, Math.min(100, ((p.last_price ?? p.entry_price) - p.stop_loss) / span * 100)); const ch = ((p.last_price ?? p.entry_price) / p.entry_price - 1) * 100;

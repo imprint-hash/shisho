@@ -78,7 +78,7 @@ export function shisho(id) {
   const recent = mine.slice(-40).reverse().map(d => ({ ...d, gap: gapOf(d),
     checks: (d.checks || []).map(c => ({ ...c, text: describe(c), shown: showValue(c.field, c.actual) })),
     note: d.note || { text: plainNote(s, d), by: "template" },
-    replay: ["enter", "exit", "stand_aside"].includes(d.kind) ? replay(d) : null }));
+    replay: ["enter", "exit", "stand_aside", "vetoed"].includes(d.kind) ? replay(d) : null }));
   return { ...card(s, all, fl), record: record(id), decisions: recent,
     followers: fl.filter(f => f.strategy === id).map(f => ({ handle: f.handle, since: f.at, return_pct: followerReturn(f) })),
     tip_split: tipSplit(1_000_000), limits: LIMITS,

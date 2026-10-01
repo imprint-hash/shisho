@@ -28,5 +28,6 @@ window.JA = {
   "Stake & publish as a shishō": "ステークして師匠として公開",
   "Four steps, and code checks every one.": "4つのステップ。すべてコードが検証します。",
   "1 · A shishō publishes rules": "1・師匠がルールを公開", "2 · An agent trades them, hourly": "2・エージェントが毎時トレード", "3 · Anyone can replay it": "3・誰でもリプレイできる", "4 · You follow a shishō": "4・師匠をフォローする",
+  "Bull · for": "強気・賛成", "Bear · against": "弱気・反対", "The council": "評議会",
 };
 window.JA_PH = { "Your handle, e.g. hanako_88": "ハンドル名（例：hanako_88）", "When…, buy…, sell…": "〜のとき、〜を買い、〜で売る" };
