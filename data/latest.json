@@ -1,5 +1,5 @@
 {
- "at": "2026-10-02T11:41:15.976Z",
+ "at": "2026-10-02T12:34:29.555Z",
  "market": {
   "fear_greed": 71,
   "fear_greed_change_7d": -2,
@@ -11,11 +11,11 @@
   "liquidation_pressure": "normal",
   "liquidated_side": "shorts",
   "breadth": 0.75,
-  "btc_dominance": 59.118646234362
+  "btc_dominance": 59.134488450227
  },
  "market_evidence": [
-  "ebaa65f1c7f062e3",
-  "df0d62dec462fc51"
+  "e39e8532b806eb46",
+  "1fc8155321acd938"
  ],
- "calls": 16
+ "calls": 12
 }
