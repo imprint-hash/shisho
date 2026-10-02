@@ -1,6 +1,6 @@
 {
  "strategy": "calm-trend",
- "cash": 5323.97,
+ "cash": 4674.04,
  "positions": [
   {
    "symbol": "CRV",
@@ -24,23 +24,23 @@
    "cost_usd": 1600,
    "take_profit": 0.00287,
    "stop_loss": 0.002371,
-   "last_price": 0.002656155217183123,
-   "last_marked_at": "2026-10-02T10:49:00.616Z",
+   "last_price": 0.002667157249096808,
+   "last_marked_at": "2026-10-02T11:41:15.976Z",
    "entry_evidence": "f4bc5494f8cd9ce3"
   },
   {
-   "symbol": "CAP",
-   "opened_at": "2026-10-02T02:12:35.722Z",
-   "entry_price": 0.0735051214431638,
-   "atr_at_entry_pct": 11.11,
-   "units": 8047.7385573385,
-   "cost_usd": 591.55,
-   "take_profit": 0.089838,
-   "stop_loss": 0.065339,
-   "last_price": 0.06713096666590603,
-   "last_marked_at": "2026-10-02T10:49:00.616Z",
-   "entry_evidence": "868af693b0ba1891",
-   "council": "half"
+   "symbol": "CARDS",
+   "opened_at": "2026-10-02T11:41:15.976Z",
+   "entry_price": 0.25150624765877816,
+   "atr_at_entry_pct": 13.8,
+   "units": 4646.0476066795,
+   "cost_usd": 1168.51,
+   "take_profit": 0.320922,
+   "stop_loss": 0.216798,
+   "last_price": 0.25150624765877816,
+   "last_marked_at": "2026-10-02T11:41:15.976Z",
+   "entry_evidence": "8f2b844fb1ccec57",
+   "council": "take"
   }
  ],
  "closed": [
@@ -87,8 +87,33 @@
     "filled": 0.06827496128641378,
     "hours_since_last_mark": 0
    }
+  },
+  {
+   "symbol": "CAP",
+   "opened_at": "2026-10-02T02:12:35.722Z",
+   "entry_price": 0.0735051214431638,
+   "atr_at_entry_pct": 11.11,
+   "units": 8047.7385573385,
+   "cost_usd": 591.55,
+   "take_profit": 0.089838,
+   "stop_loss": 0.065339,
+   "last_price": 0.06443746658786567,
+   "last_marked_at": "2026-10-02T11:41:15.976Z",
+   "entry_evidence": "868af693b0ba1891",
+   "council": "half",
+   "closed_at": "2026-10-02T11:41:15.976Z",
+   "exit_price": 0.06443746658786567,
+   "exit_reason": "stop_loss",
+   "pnl_usd": -72.97,
+   "pnl_pct": -12.34,
+   "exit_evidence": "f86020c6c29a480a",
+   "gap": {
+    "stop": 0.065339,
+    "filled": 0.06443746658786567,
+    "hours_since_last_mark": 0
+   }
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 36
+ "cycles": 37
 }

@@ -25,3 +25,4 @@
 {"at":"2026-10-02T09:06:38.876Z","event":"cycle","ms":132182,"decisions":6,"calls":19,"retries":6,"rate_limited":6,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-02T09:58:57.455Z","event":"cycle","ms":135599,"decisions":6,"calls":19,"retries":6,"rate_limited":6,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-02T10:51:13.096Z","event":"cycle","ms":132480,"decisions":6,"calls":19,"retries":6,"rate_limited":6,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
+{"at":"2026-10-02T11:43:39.893Z","event":"cycle","ms":143917,"decisions":7,"calls":19,"retries":3,"rate_limited":3,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":1}
