@@ -1,6 +1,6 @@
 {
  "strategy": "calm-trend",
- "cash": 6289.46,
+ "cash": 5031.57,
  "positions": [
   {
    "symbol": "CRV",
@@ -24,9 +24,23 @@
    "cost_usd": 1168.51,
    "take_profit": 0.320922,
    "stop_loss": 0.216798,
-   "last_price": 0.27460663470909247,
-   "last_marked_at": "2026-10-03T11:42:52.499Z",
+   "last_price": 0.2707466060341658,
+   "last_marked_at": "2026-10-03T12:34:06.053Z",
    "entry_evidence": "8f2b844fb1ccec57",
+   "council": "take"
+  },
+  {
+   "symbol": "CAP",
+   "opened_at": "2026-10-03T12:34:06.053Z",
+   "entry_price": 0.071184295632746,
+   "atr_at_entry_pct": 11.99,
+   "units": 17670.8919968768,
+   "cost_usd": 1257.89,
+   "take_profit": 0.088254,
+   "stop_loss": 0.062649,
+   "last_price": 0.071184295632746,
+   "last_marked_at": "2026-10-03T12:34:06.053Z",
+   "entry_evidence": "87304be91b7c04a1",
    "council": "take"
   }
  ],
@@ -122,5 +136,5 @@
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 65
+ "cycles": 66
 }
