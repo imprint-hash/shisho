@@ -1,7 +1,22 @@
 {
  "strategy": "rotation-scout",
- "cash": 10045.48,
- "positions": [],
+ "cash": 8538.66,
+ "positions": [
+  {
+   "symbol": "DGAI",
+   "opened_at": "2026-10-03T23:48:56.238Z",
+   "entry_price": 1.0379872079424044,
+   "atr_at_entry_pct": 5.5,
+   "units": 1451.6749228413,
+   "cost_usd": 1506.82,
+   "take_profit": 1.123621,
+   "stop_loss": 0.980898,
+   "last_price": 1.0379872079424044,
+   "last_marked_at": "2026-10-03T23:48:56.238Z",
+   "entry_evidence": "4c2e0fdcf69234c5",
+   "council": "take"
+  }
+ ],
  "closed": [
   {
    "symbol": "SOON",
@@ -70,5 +85,5 @@
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 78
+ "cycles": 79
 }
