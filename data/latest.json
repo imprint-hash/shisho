@@ -1,21 +1,21 @@
 {
- "at": "2026-10-03T00:35:49.722Z",
+ "at": "2026-10-03T01:27:06.300Z",
  "market": {
   "fear_greed": 67,
   "fear_greed_change_7d": -6,
   "sentiment_regime": "mixed_sentiment",
   "market_regime": "neutral",
   "altseason_phase": "transition",
-  "altseason_index": 54,
+  "altseason_index": 55,
   "funding_crowding": "normal",
   "liquidation_pressure": "extreme",
   "liquidated_side": "shorts",
-  "breadth": 0.4022,
-  "btc_dominance": 58.996208369211
+  "breadth": 0.4674,
+  "btc_dominance": 59.01590227023
  },
  "market_evidence": [
-  "b8906fa2ac8a01c2",
-  "61b5defe9dde4718"
+  "4e7f8f122991d5ba",
+  "56605d4e05a0392d"
  ],
  "calls": 12
 }
