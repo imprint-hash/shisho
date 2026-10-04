@@ -11,8 +11,8 @@
    "cost_usd": 1506.82,
    "take_profit": 1.123621,
    "stop_loss": 0.980898,
-   "last_price": 1.03991496200435,
-   "last_marked_at": "2026-10-04T03:18:58.820Z",
+   "last_price": 1.0316514326400454,
+   "last_marked_at": "2026-10-04T04:11:33.291Z",
    "entry_evidence": "4c2e0fdcf69234c5",
    "council": "take"
   }
@@ -85,5 +85,5 @@
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 83
+ "cycles": 84
 }
