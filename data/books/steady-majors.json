@@ -1,20 +1,7 @@
 {
  "strategy": "steady-majors",
- "cash": 5625,
+ "cash": 6131.24,
  "positions": [
-  {
-   "symbol": "BTC",
-   "opened_at": "2026-09-29T15:03:11.959Z",
-   "entry_price": 83626.03172104148,
-   "atr_at_entry_pct": 2.76,
-   "units": 0.0298949974,
-   "cost_usd": 2500,
-   "take_profit": 88242.188672,
-   "stop_loss": 80856.33755,
-   "last_price": 85124.42599179079,
-   "last_marked_at": "2026-10-04T14:40:53.826Z",
-   "entry_evidence": "c5c91139b479f665"
-  },
   {
    "symbol": "ETH",
    "opened_at": "2026-09-29T15:06:07.653Z",
@@ -27,9 +14,44 @@
    "last_price": 2702.8650655294864,
    "last_marked_at": "2026-10-01T18:26:20.661Z",
    "entry_evidence": "f1e1e48eba94dff4"
+  },
+  {
+   "symbol": "BTC",
+   "opened_at": "2026-10-04T15:33:26.526Z",
+   "entry_price": 85298.29943625393,
+   "atr_at_entry_pct": 2.57,
+   "units": 0.0239600322,
+   "cost_usd": 2043.75,
+   "take_profit": 89682.632027,
+   "stop_loss": 82667.699882,
+   "last_price": 85298.29943625393,
+   "last_marked_at": "2026-10-04T15:33:26.526Z",
+   "entry_evidence": "42dd7218a665dca9",
+   "council": "take"
   }
  ],
- "closed": [],
+ "closed": [
+  {
+   "symbol": "BTC",
+   "opened_at": "2026-09-29T15:03:11.959Z",
+   "entry_price": 83626.03172104148,
+   "atr_at_entry_pct": 2.76,
+   "units": 0.0298949974,
+   "cost_usd": 2500,
+   "take_profit": 88242.188672,
+   "stop_loss": 80856.33755,
+   "last_price": 85298.29943625393,
+   "last_marked_at": "2026-10-04T15:33:26.526Z",
+   "entry_evidence": "c5c91139b479f665",
+   "closed_at": "2026-10-04T15:33:26.526Z",
+   "exit_price": 85298.29943625393,
+   "exit_reason": "time_limit",
+   "pnl_usd": 49.99,
+   "pnl_pct": 2,
+   "exit_evidence": "42dd7218a665dca9",
+   "gap": null
+  }
+ ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 96
+ "cycles": 97
 }
