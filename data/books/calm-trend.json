@@ -24,8 +24,8 @@
    "cost_usd": 1168.51,
    "take_profit": 0.320922,
    "stop_loss": 0.216798,
-   "last_price": 0.25416367383819327,
-   "last_marked_at": "2026-10-04T06:48:32.096Z",
+   "last_price": 0.2499461694238908,
+   "last_marked_at": "2026-10-04T07:41:43.357Z",
    "entry_evidence": "8f2b844fb1ccec57",
    "council": "take"
   },
@@ -38,8 +38,8 @@
    "cost_usd": 1257.89,
    "take_profit": 0.088254,
    "stop_loss": 0.062649,
-   "last_price": 0.06843832447820562,
-   "last_marked_at": "2026-10-04T06:48:32.096Z",
+   "last_price": 0.06815020018518027,
+   "last_marked_at": "2026-10-04T07:41:43.357Z",
    "entry_evidence": "87304be91b7c04a1",
    "council": "take"
   }
@@ -136,5 +136,5 @@
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 87
+ "cycles": 88
 }
