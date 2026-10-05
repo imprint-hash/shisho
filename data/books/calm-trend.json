@@ -1,6 +1,6 @@
 {
  "strategy": "calm-trend",
- "cash": 5031.57,
+ "cash": 6217.39,
  "positions": [
   {
    "symbol": "CRV",
@@ -16,20 +16,6 @@
    "entry_evidence": "8328de3f07640c4e"
   },
   {
-   "symbol": "CARDS",
-   "opened_at": "2026-10-02T11:41:15.976Z",
-   "entry_price": 0.25150624765877816,
-   "atr_at_entry_pct": 13.8,
-   "units": 4646.0476066795,
-   "cost_usd": 1168.51,
-   "take_profit": 0.320922,
-   "stop_loss": 0.216798,
-   "last_price": 0.2524739721335704,
-   "last_marked_at": "2026-10-05T11:28:18.113Z",
-   "entry_evidence": "8f2b844fb1ccec57",
-   "council": "take"
-  },
-  {
    "symbol": "CAP",
    "opened_at": "2026-10-03T12:34:06.053Z",
    "entry_price": 0.071184295632746,
@@ -38,8 +24,8 @@
    "cost_usd": 1257.89,
    "take_profit": 0.088254,
    "stop_loss": 0.062649,
-   "last_price": 0.06515204638752947,
-   "last_marked_at": "2026-10-05T11:28:18.113Z",
+   "last_price": 0.06557402723634441,
+   "last_marked_at": "2026-10-05T12:20:35.279Z",
    "entry_evidence": "87304be91b7c04a1",
    "council": "take"
   }
@@ -133,8 +119,29 @@
    "pnl_pct": 0.96,
    "exit_evidence": "b0672ab7013c4731",
    "gap": null
+  },
+  {
+   "symbol": "CARDS",
+   "opened_at": "2026-10-02T11:41:15.976Z",
+   "entry_price": 0.25150624765877816,
+   "atr_at_entry_pct": 13.8,
+   "units": 4646.0476066795,
+   "cost_usd": 1168.51,
+   "take_profit": 0.320922,
+   "stop_loss": 0.216798,
+   "last_price": 0.2552326343336172,
+   "last_marked_at": "2026-10-05T12:20:35.279Z",
+   "entry_evidence": "8f2b844fb1ccec57",
+   "council": "take",
+   "closed_at": "2026-10-05T12:20:35.279Z",
+   "exit_price": 0.2552326343336172,
+   "exit_reason": "time_limit",
+   "pnl_usd": 17.31,
+   "pnl_pct": 1.48,
+   "exit_evidence": "831abd88c49b1a2f",
+   "gap": null
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 120
+ "cycles": 121
 }
