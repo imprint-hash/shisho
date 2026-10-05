@@ -96,3 +96,4 @@
 {"at":"2026-10-04T22:28:26.432Z","event":"cycle","ms":132702,"decisions":6,"calls":21,"retries":6,"rate_limited":6,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-04T23:20:47.438Z","event":"cycle","ms":138605,"decisions":6,"calls":21,"retries":6,"rate_limited":6,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-05T00:13:50.769Z","event":"cycle","ms":180711,"decisions":6,"calls":20,"retries":5,"rate_limited":5,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
+{"at":"2026-10-05T01:05:03.257Z","event":"cycle","ms":69899,"decisions":6,"calls":13,"retries":3,"rate_limited":3,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
