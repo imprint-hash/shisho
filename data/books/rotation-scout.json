@@ -1,7 +1,22 @@
 {
  "strategy": "rotation-scout",
- "cash": 9715.46,
- "positions": [],
+ "cash": 8258.14,
+ "positions": [
+  {
+   "symbol": "ORCA",
+   "opened_at": "2026-10-05T13:12:55.434Z",
+   "entry_price": 2.0257327594636676,
+   "atr_at_entry_pct": 5.55,
+   "units": 719.4038765438,
+   "cost_usd": 1457.32,
+   "take_profit": 2.194375,
+   "stop_loss": 1.913305,
+   "last_price": 2.0257327594636676,
+   "last_marked_at": "2026-10-05T13:12:55.434Z",
+   "entry_evidence": "b7b280c4eb9e0109",
+   "council": "take"
+  }
+ ],
  "closed": [
   {
    "symbol": "SOON",
@@ -162,5 +177,5 @@
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 121
+ "cycles": 122
 }
