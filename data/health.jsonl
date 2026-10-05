@@ -112,3 +112,4 @@
 {"at":"2026-10-05T12:22:52.449Z","event":"cycle","ms":137170,"decisions":7,"calls":22,"retries":6,"rate_limited":6,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-05T13:16:10.791Z","event":"cycle","ms":195357,"decisions":6,"calls":23,"retries":6,"rate_limited":6,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-05T14:08:44.639Z","event":"cycle","ms":138427,"decisions":6,"calls":22,"retries":6,"rate_limited":6,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
+{"at":"2026-10-05T15:00:03.511Z","event":"cycle","ms":74434,"decisions":6,"calls":15,"retries":3,"rate_limited":3,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
