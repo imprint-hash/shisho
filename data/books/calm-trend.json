@@ -1,6 +1,6 @@
 {
  "strategy": "calm-trend",
- "cash": 6217.39,
+ "cash": 4973.91,
  "positions": [
   {
    "symbol": "CRV",
@@ -24,9 +24,23 @@
    "cost_usd": 1257.89,
    "take_profit": 0.088254,
    "stop_loss": 0.062649,
-   "last_price": 0.07374105339389866,
-   "last_marked_at": "2026-10-05T18:23:58.621Z",
+   "last_price": 0.07405903564309597,
+   "last_marked_at": "2026-10-05T19:16:42.244Z",
    "entry_evidence": "87304be91b7c04a1",
+   "council": "take"
+  },
+  {
+   "symbol": "SPCXB",
+   "opened_at": "2026-10-05T19:16:42.244Z",
+   "entry_price": 169.2747792280079,
+   "atr_at_entry_pct": 2.56,
+   "units": 7.3459259889,
+   "cost_usd": 1243.48,
+   "take_profit": 177.941648,
+   "stop_loss": 164.941345,
+   "last_price": 169.2747792280079,
+   "last_marked_at": "2026-10-05T19:16:42.244Z",
+   "entry_evidence": "43c43542263ca753",
    "council": "take"
   }
  ],
@@ -143,5 +157,5 @@
   }
  ],
  "started_at": "2026-09-29T15:03:11.959Z",
- "cycles": 128
+ "cycles": 129
 }
