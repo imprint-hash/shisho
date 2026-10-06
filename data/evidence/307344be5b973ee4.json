@@ -1,0 +1,1 @@
+{"args":{"symbol":"BTC"},"as_of":null,"attempts":4,"data":null,"ms":61133,"reason":"couldn't analyze BTC right now (trace_id: ac050c40d8654c0ea96a49c62468378b)","status":"unavailable","summary":null,"tool":"analyze_token","warnings":[]}
