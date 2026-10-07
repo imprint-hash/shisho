@@ -158,3 +158,4 @@
 {"at":"2026-10-07T00:20:56.185Z","event":"cycle","ms":67393,"decisions":9,"calls":10,"retries":3,"rate_limited":3,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-07T01:12:07.408Z","event":"cycle","ms":67354,"decisions":9,"calls":10,"retries":3,"rate_limited":3,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-07T02:03:17.647Z","event":"cycle","ms":66252,"decisions":9,"calls":10,"retries":3,"rate_limited":3,"network_errors":0,"unavailable":[],"notes_by_template":0,"councils_fell_back":0}
+{"at":"2026-10-07T02:53:26.083Z","event":"cycle","ms":4416,"decisions":9,"calls":7,"retries":0,"rate_limited":0,"network_errors":0,"unavailable":["market_overview","monitor_market_sentiment_shift","analyze_token"],"notes_by_template":0,"councils_fell_back":0}
