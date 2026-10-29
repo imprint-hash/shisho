@@ -801,3 +801,4 @@
 {"at":"2026-10-29T10:15:40.581Z","event":"network_wait","detail":"RYO unreachable; the cycle waits and retries next minute."}
 {"at":"2026-10-29T10:34:40.850Z","event":"cycle","ms":537930,"decisions":9,"calls":11,"retries":4,"rate_limited":0,"network_errors":5,"unavailable":["monitor_market_sentiment_shift","market_overview","analyze_token"],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-10-29T11:27:27.594Z","event":"cycle","ms":162653,"decisions":9,"calls":7,"retries":0,"rate_limited":0,"network_errors":0,"unavailable":["monitor_market_sentiment_shift","market_overview","analyze_token"],"notes_by_template":0,"councils_fell_back":0}
+{"at":"2026-10-29T12:26:24.634Z","event":"cycle","ms":519561,"decisions":9,"calls":11,"retries":4,"rate_limited":0,"network_errors":3,"unavailable":["market_overview","monitor_market_sentiment_shift","analyze_token"],"notes_by_template":0,"councils_fell_back":0}
