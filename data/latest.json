@@ -1,5 +1,5 @@
 {
- "at": "2026-11-06T02:05:12.931Z",
+ "at": "2026-11-06T02:55:21.682Z",
  "market": {
   "fear_greed": null,
   "fear_greed_change_7d": null,
@@ -14,8 +14,8 @@
   "btc_dominance": null
  },
  "market_evidence": [
-  "09c9fe33c6533c3e",
-  "3274585ffc86158b"
+  "dd189332b113cdb3",
+  "a6d598585b5f6525"
  ],
  "calls": 7
 }
