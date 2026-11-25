@@ -1561,3 +1561,4 @@
 {"at":"2026-11-24T21:37:53.888Z","event":"cycle","ms":5704,"decisions":9,"calls":7,"retries":0,"rate_limited":0,"network_errors":0,"unavailable":["market_overview","monitor_market_sentiment_shift","analyze_token"],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-11-24T22:28:03.061Z","event":"cycle","ms":3815,"decisions":9,"calls":7,"retries":0,"rate_limited":0,"network_errors":0,"unavailable":["monitor_market_sentiment_shift","market_overview","analyze_token"],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-11-24T23:18:12.621Z","event":"cycle","ms":4524,"decisions":9,"calls":7,"retries":0,"rate_limited":0,"network_errors":0,"unavailable":["monitor_market_sentiment_shift","market_overview","analyze_token"],"notes_by_template":0,"councils_fell_back":0}
+{"at":"2026-11-25T00:08:27.868Z","event":"network_wait","detail":"RYO unreachable; the cycle waits and retries next minute."}
