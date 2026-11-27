@@ -6578,3 +6578,7 @@
 {"strategy":"fear-buyer","at":"2026-11-27T21:36:24.977Z","equity":10000,"open":0}
 {"strategy":"rotation-scout","at":"2026-11-27T21:36:24.977Z","equity":9872.39,"open":0}
 {"strategy":"steady-majors","at":"2026-11-27T21:36:24.977Z","equity":10055.54,"open":2}
+{"strategy":"calm-trend","at":"2026-11-27T22:26:34.257Z","equity":9516.38,"open":3}
+{"strategy":"fear-buyer","at":"2026-11-27T22:26:34.257Z","equity":10000,"open":0}
+{"strategy":"rotation-scout","at":"2026-11-27T22:26:34.257Z","equity":9872.39,"open":0}
+{"strategy":"steady-majors","at":"2026-11-27T22:26:34.257Z","equity":10055.54,"open":2}
