@@ -1641,3 +1641,4 @@
 {"at":"2026-11-27T09:52:54.637Z","event":"cycle","ms":3670,"decisions":9,"calls":7,"retries":0,"rate_limited":0,"network_errors":0,"unavailable":["market_overview","monitor_market_sentiment_shift","analyze_token"],"notes_by_template":0,"councils_fell_back":0}
 {"at":"2026-11-27T10:43:09.072Z","event":"network_wait","detail":"RYO unreachable; the cycle waits and retries next minute."}
 {"at":"2026-11-27T10:53:21.498Z","event":"network_wait","detail":"RYO unreachable; the cycle waits and retries next minute."}
+{"at":"2026-11-27T11:03:33.742Z","event":"network_wait","detail":"RYO unreachable; the cycle waits and retries next minute."}
